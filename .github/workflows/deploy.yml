@@ -19,7 +19,7 @@ jobs:
           route: POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/deployments
           ref: ${{ github.sha }}
           required_contexts: '[]'
-          environment: 'production'
+          environment: 'Production'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
