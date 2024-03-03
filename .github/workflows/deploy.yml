@@ -33,9 +33,10 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd ./faynn.com/express-app
             pm2 stop express-app
+            git checkout master
             git pull
             npm install
-            pm2 start express-app
+            pm2 restart express-app
           EOF
       
       - name: Update deployment status to success
