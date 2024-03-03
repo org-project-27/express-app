@@ -16,12 +16,10 @@ jobs:
         id: create_deployment
         uses: octokit/request-action@v2.x
         with:
-          route: POST /repos/:owner/:repo/deployments
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
+          route: POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/deployments
           ref: ${{ github.sha }}
           required_contexts: '[]'
-          environment: 'production' # veya staging, test vs.
+          environment: 'production'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -40,28 +38,20 @@ jobs:
             pm2 start express-app
           EOF
       
-      - name: Update deployment status (success)
+      - name: Update deployment status to success
         if: success()
         uses: octokit/request-action@v2.x
         with:
-          route: POST /repos/:owner/:repo/deployments/:deployment/statuses
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
-          deployment: ${{ steps.create_deployment.outputs.id }}
+          route: POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/deployments/${{ fromJson(steps.create_deployment.outputs.data).id }}/statuses
           state: 'success'
-          environment: 'production' # veya staging, test vs.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update deployment status (failure)
+      - name: Update deployment status to failure
         if: failure()
         uses: octokit/request-action@v2.x
         with:
-          route: POST /repos/:owner/:repo/deployments/:deployment/statuses
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.event.repository.name }}
-          deployment: ${{ steps.create_deployment.outputs.id }}
+          route: POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/deployments/${{ fromJson(steps.create_deployment.outputs.data).id }}/statuses
           state: 'failure'
-          environment: 'production' # veya staging, test vs.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
