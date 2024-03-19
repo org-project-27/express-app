@@ -7,10 +7,11 @@ import messages from "../../assets/constants/apiMessageKeys.js";
 import bcrypt from "bcrypt";
 import { trimObjectValues } from "../../assets/helpers/generalHelpers.js";
 import jwt from 'jsonwebtoken';
+import email from "../../configs/sendgridConfig.js";
 
 async function getUserByPayload(payload){
     return await Users.methods.findOne({...payload}, ['details']);
-};
+}
 
 async function checkAllSignupFields(requiredFields, payload, res){
     // step #1: Check required fields is filled
@@ -48,7 +49,7 @@ async function checkAllSignupFields(requiredFields, payload, res){
             messages.INVALID_FULLNAME);
     }
     return true;
-};
+}
 
 async function checkAllLoginFields(payload, res){
     const requiredFields = ['email', 'password'];
@@ -74,7 +75,7 @@ async function checkAllLoginFields(payload, res){
             messages.EMAIL_OR_PASSWORD_INCORRECT);
     }
     return userByEmail;
-};
+}
 
 const signup = async(req = { body: Users.modelFields }, res) => {
     const {requiredFields, methods} = Users;
@@ -90,10 +91,32 @@ const signup = async(req = { body: Users.modelFields }, res) => {
                         details['is_seller'] = false;
                         details[Users.includes.details.foreignKey] = result.id;
                         await UserDetailsModel.model.create(details);
-                        $sendResponse.success(res,
-                            statusCodes.OK,
-                            messages.USER_SUCCESSFULLY_REGISTERED,
-                            {record_id: result.id})
+                        if (payload.email) {
+                            const msg = {
+                                to: payload.email, // Change to your recipient
+                                from: 'noreply@faynn.com', // Change to your verified sender
+                                template_id: 'd-53633d33ef97403cb4e8c136a82307c0',
+                                dynamic_template_data: {
+                                    fullname: payload.fullname,
+                                    token: 'token-token-token'
+                                }
+                              }
+                              email
+                                  .send(msg)
+                                  .then(() => {
+                                    $sendResponse.success(res,
+                                        statusCodes.OK,
+                                        messages.USER_SUCCESSFULLY_REGISTERED,
+                                        { record_id: result.id })
+                                  })
+                                  .catch((error) => {
+                                    $sendResponse.failed(res, 
+                                        statusCodes.BAD_REQUEST, 
+                                        messages.SOMETHING_WENT_WRONG, 
+                                        error); 
+                                  });
+                              
+                        }
                     })
                     .catch(error => $sendResponse.failed(res,
                             statusCodes.BAD_REQUEST,
@@ -147,7 +170,7 @@ const login = async(req = { body: { email: null, password: null } }, res) => {
     }
 };
 
-const auth = async(req = {body: { access_token: null }}, res) => {
+const auth = async(req = { body: { access_token: null } }, res) => {
     await getUserByPayload({id: req.user_auth_id})
         .then(data => {
             data['user_id'] = data['id'];
@@ -160,6 +183,53 @@ const auth = async(req = {body: { access_token: null }}, res) => {
             messages.SOMETHING_WENT_WRONG,
             {error: error?.name}));
 };
+
+const forgotPassword = async(req = { body: { email: null } }, res) => {
+    const payload = req.body;
+    const requiredFields = ['email'];
+
+    // step #1: Check required fields is filled
+    const checkRequiredFields = validRequiredFields(requiredFields, payload);
+    if(checkRequiredFields.length){
+        return $sendResponse.failed(res, 
+            statusCodes.EXPECTATION_FAILED, 
+            messages.INVALID_EMAIL, 
+            {required_fields: checkRequiredFields});
+    }
+    // step #2: Validate email string
+    if(!validateEmail(payload.email)){
+        return $sendResponse.failed(res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.INVALID_EMAIL);
+    }
+    // step #3: Check email if exist
+    const userByEmail = await getUserByPayload({ email: payload.email });
+    console.log(userByEmail);
+    if (userByEmail) {
+        const msg = {
+            to: payload.email, // Change to your recipient
+            from: 'noreply@faynn.com', // Change to your verified sender
+            template_id: 'd-96ca8cb2667443719b8a3fb3e6ce382f',
+            dynamic_template_data: {
+                fullname: userByEmail.fullname,
+                expire_in_hour: 24,
+                token: 'token-token-token'
+            }
+          }
+          email
+              .send(msg)
+              .then(() => {
+                $sendResponse.success(res);
+            })
+              .catch((error) => {
+                $sendResponse.failed(res, 
+                    statusCodes.BAD_REQUEST, 
+                    messages.SOMETHING_WENT_WRONG, 
+                    error); 
+              });
+          
+    }
+}
 
 const refreshToken = (req = { body: { refresh_token: null } }, res) => {
     const { refresh_token } = req.body;
@@ -198,15 +268,15 @@ const refreshToken = (req = { body: { refresh_token: null } }, res) => {
 };
 
 const getUserBy = async (req, res) => {
-    const result = await Users.methods.findOne({...req.query}, ['details', 'examples']);
+    const result = await Users.methods.findOne({ ...req.query }, ['details', 'examples']);
     $sendResponse.success(res, statusCodes.OK, messages.DONE, result);
-}
+};
 
 const destroyByPk = async (req, res) => {
     const { id } = req.query;
     const result = await Users.methods.destroyByPk(id);
     $sendResponse.success(res, statusCodes.OK, messages.DONE, result);
-}
+};
 
 export default $callToAction({
     GET: {
@@ -215,6 +285,7 @@ export default $callToAction({
     POST: {
         '/login': login,
         '/signup': signup,
-        '/token': refreshToken
+        '/token': refreshToken,
+        '/forgot_password': forgotPassword
     },
 });

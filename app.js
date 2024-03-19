@@ -8,7 +8,7 @@ import cors from "cors";
 import indexRouter from "./routes/index.js";
 import apiRouter from "./routes/api.js";
 import dotenv from 'dotenv';
-import database from "./db/sequelizeConfig.js";
+import database from "./configs/sequelizeConfig.js";
 import HttpCodes from "./assets/helpers/statusCodes.js";
 import sync from "./db/sync.js";
 

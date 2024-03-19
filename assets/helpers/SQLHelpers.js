@@ -1,4 +1,4 @@
-import sequelizeConfig from "../../db/sequelizeConfig.js";
+import sequelizeConfig from "../../configs/sequelizeConfig.js";
 async function RUN_SQL_QUERY(query='', database = sequelizeConfig){
     try {
        return await database.query(query)
