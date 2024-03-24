@@ -23,7 +23,7 @@ const userDetailsModel = {
             type: DataTypes.STRING,
             queryValue: 'VARCHAR(255)'
         },
-        is_seller: {
+        email_registered: {
             type: DataTypes.BOOLEAN,
             queryValue: 'BOOL'
         }
