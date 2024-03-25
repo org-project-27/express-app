@@ -8,12 +8,12 @@ export const SMTPAddress = {
         //Typically used for automated emails where recipients are not expected to reply, such as newsletters, notifications, or confirmation emails.
         email: `noreply@${appDomain}`,
         transporter: nodemailer.createTransport({
-            host: process.env.AWS_SES_SMTP_SERVER,
+            host: process.env.SMTP_SERVER,
             port: 587,
             secure: false,
             auth: {
-                user: process.env.AWS_SES_SMTP_USER,
-                pass: process.env.AWS_SES_SMTP_PASS
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
             }
         }),
     },
