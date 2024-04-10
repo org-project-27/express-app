@@ -111,11 +111,11 @@ const signup = async (req = {body: Users.modelFields}, res) => {
                                     messages.USER_SUCCESSFULLY_REGISTERED,
                                     {record_id: result.id})
                             }).catch((error) => {
-                                    $sendResponse.failed(res,
-                                        statusCodes.BAD_REQUEST,
-                                        messages.SOMETHING_WENT_WRONG,
-                                        {error});
-                                });
+                                $sendResponse.failed(res,
+                                    statusCodes.BAD_REQUEST,
+                                    messages.SOMETHING_WENT_WRONG,
+                                    {error});
+                            });
 
                         }
                     })
