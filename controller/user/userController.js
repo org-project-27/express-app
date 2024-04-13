@@ -13,6 +13,7 @@ import bcrypt from "bcrypt";
 import {trimObjectValues} from "../../assets/helpers/generalHelpers.js";
 import jwt from 'jsonwebtoken';
 import {$sendEmail} from "../../assets/helpers/emailHelper.js";
+import {v4 as uuidv4} from "uuid";
 
 async function getUserByPayload(payload) {
     return await Users.methods.findOne({...payload}, ['details']);
@@ -97,25 +98,30 @@ const signup = async (req = {body: Users.modelFields}, res) => {
                         details[Users.includes.details.foreignKey] = result.id;
                         await UserDetailsModel.model.create(details);
                         if (payload.email) {
-                            const access_token = jwt.sign(
-                                { user_id: payload.id },
+                            const appDomain = process.env.APP_BRAND_DOMAIN;
+                            const confirm_link_life_hour = 24;
+                            const confirm_email_token = jwt.sign(
+                                {email: payload.email},
                                 process.env.ACCESS_TOKEN_SECRET,
                                 {expiresIn: Number(process.env.ACCESS_TOKEN_LIFE)}
                             );
+                            const confirm_link = `www.${appDomain.toLowerCase()}/confirm_email?token=${confirm_email_token}`;
+
                             await $sendEmail(payload.email)["@noreply"].confirmEmail({
-                                fullname: payload.fullname,
-                                token: access_token
+                                full_name: payload.fullname,
+                                confirm_link,
+                                confirm_link_life_hour,
                             }).then(() => {
                                 $sendResponse.success(res,
                                     statusCodes.OK,
                                     messages.USER_SUCCESSFULLY_REGISTERED,
                                     {record_id: result.id})
                             }).catch((error) => {
-                                    $sendResponse.failed(res,
-                                        statusCodes.BAD_REQUEST,
-                                        messages.SOMETHING_WENT_WRONG,
-                                        {error});
-                                });
+                                $sendResponse.failed(res,
+                                    statusCodes.BAD_REQUEST,
+                                    messages.SOMETHING_WENT_WRONG,
+                                    {error});
+                            });
 
                         }
                     })
@@ -259,6 +265,41 @@ const refreshToken = (req = {body: {refresh_token: null}}, res) => {
     });
 };
 
+const confirmEmail = async (req = {query: {token: null}}, res) => {
+    const {token} = req.query;
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
+        let email = null;
+        if (err) {
+            return $sendResponse.failed(
+                res,
+                statusCodes.FORBIDDEN,
+                messages.INVALID_TOKEN
+            );
+        }
+        email = data.email;
+        if (!email) {
+            return $sendResponse.failed(
+                res,
+                statusCodes.FORBIDDEN,
+                messages.LINK_EXPIRED
+            );
+        }
+        const {id} = await Users.methods.findOne({email}, ['details', 'examples']);
+        if (!id) {
+            return $sendResponse.failed(
+                res,
+                statusCodes.NOT_FOUND,
+                messages.EMAIL_IS_NOT_REGISTERED
+            );
+        }
+        const UserDetails = await UserDetailsModel.model.findByPk(id);
+        UserDetails.email_registered = true;
+        await UserDetails.save()
+        return $sendResponse.success(res, statusCodes.OK, messages.DONE);
+
+    });
+}
+
 const getUserBy = async (req, res) => {
     const result = await Users.methods.findOne({...req.query}, ['details', 'examples']);
     $sendResponse.success(res, statusCodes.OK, messages.DONE, result);
@@ -273,6 +314,7 @@ const destroyByPk = async (req, res) => {
 export default $callToAction({
     GET: {
         '/auth': auth,
+        '/confirm_email': confirmEmail
     },
     POST: {
         '/login': login,
