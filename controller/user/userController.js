@@ -273,7 +273,7 @@ const confirmEmail = async (req = {query: {token: null}}, res) => {
             return $sendResponse.failed(
                 res,
                 statusCodes.FORBIDDEN,
-                messages.INVALID_TOKEN
+                messages.LINK_EXPIRED
             );
         }
         email = data.email;
@@ -295,7 +295,7 @@ const confirmEmail = async (req = {query: {token: null}}, res) => {
         const UserDetails = await UserDetailsModel.model.findByPk(id);
         UserDetails.email_registered = true;
         await UserDetails.save()
-        return $sendResponse.success(res, statusCodes.OK, messages.DONE);
+        return $sendResponse.success(res, statusCodes.OK, messages.EMAIL_SUCCESSFULLY_CONFIRMED);
 
     });
 }
