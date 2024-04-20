@@ -105,7 +105,7 @@ const signup = async (req = {body: Users.modelFields}, res) => {
                                 process.env.ACCESS_TOKEN_SECRET,
                                 {expiresIn: Number(process.env.ACCESS_TOKEN_LIFE)}
                             );
-                            const confirm_link = `www.${appDomain.toLowerCase()}/confirm_email?token=${confirm_email_token}`;
+                            const confirm_link = `https://www.${appDomain.toLowerCase()}/confirm_email?token=${confirm_email_token}`;
 
                             await $sendEmail(payload.email)["@noreply"].confirmEmail({
                                 full_name: payload.fullname,
