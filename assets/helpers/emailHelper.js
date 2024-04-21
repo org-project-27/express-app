@@ -9,21 +9,24 @@ const company_name = process.env.APP_BRAND_NAME;
 export function $sendEmail(to) {
     return {
         '@noreply': {
-            async resetPassword(payload) {
+            async resetPassword(payload = { full_name: null, reset_link: null, reset_link_life_hour: null }) {
                 console.log(`[@] "Reset Password" email request: (${SMTPAddress.noreply.email} -> ${to})`);
                 // -----------------------------------------------------------------
-                const info = await SMTPAddress.noreply.transporter.sendMail({
+                const { full_name, reset_link, reset_link_life_hour } = payload;
+                const sentEmail = await SMTPAddress.noreply.transporter.sendMail({
                     from: `${appDomain} <${SMTPAddress.noreply.email}>`,
                     to,
                     subject: "Reset Password!",
-                text: "Hello there, here the link for reset your password!",
+                    text: "Hello there, here the link for reset your password!",
                     html: await getEmailTemplate('reset_password', {
-                        full_name: 'Vugar Safarzada',
-                        reset_password_link_title: 'Click Link',
-                        reset_password_link: 'faynn.com/getstarted?view=forgot_password'
+                        reset_link,
+                        full_name,
+                        company_name,
+                        reset_link_life_hour,
+                        support_team_email: SMTPAddress.support.email,
                     }),
                 });
-                console.log("Message sent: %s", info.response);
+                console.log("Message sent: %s", sentEmail.response);
                 // -----------------------------------------------------------------
                 return null;
             },
@@ -31,7 +34,7 @@ export function $sendEmail(to) {
                 console.log(`[@] "Confirm Email" email request: (${SMTPAddress.noreply.email} -> ${to})`);
                 // -----------------------------------------------------------------
                 const { full_name, confirm_link, confirm_link_life_hour } = payload;
-                const info = await SMTPAddress.noreply.transporter.sendMail({
+                const sentEmail = await SMTPAddress.noreply.transporter.sendMail({
                     from: `${appDomain} <${SMTPAddress.noreply.email}>`,
                     to,
                     subject: "Confirm Email!",
@@ -41,14 +44,13 @@ export function $sendEmail(to) {
                         company_name,
                         full_name,
                         confirm_link,
-                        confirm_link_label: 'Confirm Email',
                         confirm_link_life_hour
                     }),
                 });
 
-                console.log("Message sent: %s", info.response);
+                console.log("Message sent: %s", sentEmail.response);
                 // -----------------------------------------------------------------
-                return info;
+                return sentEmail;
             },
         },
     }
@@ -56,6 +58,7 @@ export function $sendEmail(to) {
 
 export async function getEmailTemplate(template_name, values = {}){
     const lang = 'en';
+    values['logo_url'] = `https://${appDomain.toLowerCase()}/logo1.svg`
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     let templateContent = '<strong> Null content </strong>';
     try {

@@ -26,6 +26,11 @@ const userDetailsModel = {
         email_registered: {
             type: DataTypes.BOOLEAN,
             queryValue: 'BOOL'
+        },
+        reset_password_token: {
+            type: DataTypes.STRING,
+            queryValue: 'VARCHAR(255)',
+            unique: true,
         }
     }
 }

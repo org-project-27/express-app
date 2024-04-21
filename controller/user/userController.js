@@ -200,11 +200,25 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
     // step #3: Check email if exist
     const userByEmail = await getUserByPayload({email: payload.email});
     if (userByEmail) {
+        const appDomain = process.env.APP_BRAND_DOMAIN;
+        const reset_link_life_hour = 24;
+        const reset_link_token = jwt.sign(
+            {request_key: userByEmail.password},
+            process.env.ACCESS_TOKEN_SECRET,
+            {expiresIn: reset_link_life_hour * 3600}
+        );
+
+        const reset_link = `www.${appDomain.toLowerCase()}/reset_password?token=${reset_link_token}`;
+
+        const UserDetails = await UserDetailsModel.model.findByPk(userByEmail.id);
+
         await $sendEmail(payload.email)["@noreply"].resetPassword({
-            fullname: userByEmail.fullname,
-            expire_in_hour: 24,
-            token: 'example-token'
-        }).then(() => {
+            full_name: userByEmail.fullname,
+            reset_link_life_hour,
+            reset_link,
+        }).then(async () => {
+            UserDetails.reset_password_token = reset_link_token;
+            await UserDetails.save();
             $sendResponse.success(res);
         }).catch((error) => {
             $sendResponse.failed(res,
@@ -213,7 +227,9 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
                 error);
         });
     } else {
-        $sendResponse.success(res);
+        $sendResponse.failed(res,
+            statusCodes.NOT_FOUND,
+            messages.EMAIL_IS_NOT_REGISTERED);
     }
 }
 
