@@ -59,7 +59,7 @@ export async function getEmailTemplate(template_name, values = {}){
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     let templateContent = '<strong> Null content </strong>';
     try {
-        const filePath = path.join(__dirname, `../email_templates/${lang}/${template_name}.html`);
+        const filePath = path.join(__dirname, `../../views/email_templates/${lang}/${template_name}.html`);
         templateContent = await fs.readFile(filePath, 'utf8');
     } catch (error) {
         console.error('Error reading the HTML file', error);

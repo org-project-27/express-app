@@ -316,7 +316,7 @@ const sendConfirmEmail = async (payload = { email: null, fullname: null }) => {
 export default $callToAction({
     GET: {
         '/auth': auth,
-        '/confirm_email': confirmEmail
+        '/confirm_email': confirmEmail,
     },
     POST: {
         '/login': login,
