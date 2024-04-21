@@ -58,7 +58,7 @@ export function $sendEmail(to) {
 
 export async function getEmailTemplate(template_name, values = {}){
     const lang = 'en';
-    values['logo_url'] = `https://${appDomain.toLowerCase()}/logo1.svg`
+    values['logo_url'] = `${appDomain.toLowerCase()}/logo1.png`
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     let templateContent = '<strong> Null content </strong>';
     try {
