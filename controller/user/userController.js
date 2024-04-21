@@ -98,31 +98,19 @@ const signup = async (req = {body: Users.modelFields}, res) => {
                         details[Users.includes.details.foreignKey] = result.id;
                         await UserDetailsModel.model.create(details);
                         if (payload.email) {
-                            const appDomain = process.env.APP_BRAND_DOMAIN;
-                            const confirm_link_life_hour = 24;
-                            const confirm_email_token = jwt.sign(
-                                {email: payload.email},
-                                process.env.ACCESS_TOKEN_SECRET,
-                                {expiresIn: Number(process.env.ACCESS_TOKEN_LIFE)}
-                            );
-                            const confirm_link = `www.${appDomain.toLowerCase()}/confirm_email?token=${confirm_email_token}`;
-
-                            await $sendEmail(payload.email)["@noreply"].confirmEmail({
-                                full_name: payload.fullname,
-                                confirm_link,
-                                confirm_link_life_hour,
-                            }).then(() => {
-                                $sendResponse.success(res,
-                                    statusCodes.OK,
-                                    messages.USER_SUCCESSFULLY_REGISTERED,
-                                    {record_id: result.id})
-                            }).catch((error) => {
-                                $sendResponse.failed(res,
-                                    statusCodes.BAD_REQUEST,
-                                    messages.SOMETHING_WENT_WRONG,
-                                    {error});
-                            });
-
+                            await sendConfirmEmail(payload)
+                                .then(() => {
+                                    $sendResponse.success(res,
+                                        statusCodes.OK,
+                                        messages.USER_SUCCESSFULLY_REGISTERED,
+                                        {record_id: result.id})
+                                })
+                                .catch((error) => {
+                                    $sendResponse.failed(res,
+                                        statusCodes.BAD_REQUEST,
+                                        messages.SOMETHING_WENT_WRONG,
+                                        {error});
+                                });
                         }
                     })
                     .catch(error => $sendResponse.failed(res,
@@ -293,6 +281,13 @@ const confirmEmail = async (req = {query: {token: null}}, res) => {
             );
         }
         const UserDetails = await UserDetailsModel.model.findByPk(id);
+        if(UserDetails.email_registered === true){
+            return $sendResponse.failed(
+                res,
+                statusCodes.CONFLICT,
+                messages.EMAIL_IS_EXIST
+            );
+        }
         UserDetails.email_registered = true;
         await UserDetails.save()
         return $sendResponse.success(res, statusCodes.OK, messages.EMAIL_SUCCESSFULLY_CONFIRMED);
@@ -300,17 +295,24 @@ const confirmEmail = async (req = {query: {token: null}}, res) => {
     });
 }
 
-const getUserBy = async (req, res) => {
-    const result = await Users.methods.findOne({...req.query}, ['details', 'examples']);
-    $sendResponse.success(res, statusCodes.OK, messages.DONE, result);
-};
+const sendConfirmEmail = async (payload = { email: null, fullname: null }) => {
+    const appDomain = process.env.APP_BRAND_DOMAIN;
+    const confirm_link_life_hour = 24;
 
-const destroyByPk = async (req, res) => {
-    const {id} = req.query;
-    const result = await Users.methods.destroyByPk(id);
-    $sendResponse.success(res, statusCodes.OK, messages.DONE, result);
-};
+    const confirm_email_token = jwt.sign(
+        {email: payload.email},
+        process.env.ACCESS_TOKEN_SECRET,
+        {expiresIn: confirm_link_life_hour * 3600}
+    );
 
+    const confirm_link = `www.${appDomain.toLowerCase()}/confirm_email?token=${confirm_email_token}`;
+
+    return await $sendEmail(payload.email)["@noreply"].confirmEmail({
+        full_name: payload.fullname,
+        confirm_link,
+        confirm_link_life_hour,
+    });
+}
 export default $callToAction({
     GET: {
         '/auth': auth,
