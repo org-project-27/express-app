@@ -412,61 +412,59 @@ const checkResetPasswordToken =  async (req = {query: {token: null}}, res) => {
 
 const resetPassword = async (req = { body: { new_password: null, token: null } }, res) => {
     const { token, new_password } = req.body;
-    
-    await resetPasswordTokenVerify(res, { token }).then(async (request_key) => {
-        if (request_key) {
-            const targetUser = await Users.model.findOne({ where: { password: request_key } });
-            const targetUserDetails = await UserDetailsModel.model.findOne({ where: { user_id: targetUser.id } });
-            
-            // Check new password is different current one
-            await bcrypt.compare(new_password, targetUser.password)
-            .then(result => {
-                if (result) {
-                    return $sendResponse.failed(res, statusCodes.CONFLICT, messages.DO_NOT_USE_OLD_PASSWORD);
-                } else {
-                    // Update New Password
-                    const saltRound = Number(process.env.HASH_LIMIT) || 10;
-                    bcrypt.hash(new_password, saltRound)
+    if (token && new_password) {
+        if (validatePasswordStrength(new_password) < 2) {
+            return $sendResponse.failed(res,
+                statusCodes.EXPECTATION_FAILED,
+                messages.INVALID_PASSWORD);
+        }
+        await resetPasswordTokenVerify(res, { token }).then(async (request_key) => {
+            if (request_key) {
+                const targetUser = await Users.model.findOne({ where: { password: request_key } });
+                const targetUserDetails = await UserDetailsModel.model.findOne({ where: { user_id: targetUser.id } });
+                
+                // Update New Password
+                const saltRound = Number(process.env.HASH_LIMIT) || 10;
+                bcrypt.hash(new_password, saltRound)
                     .then(async (hash) => {
                         targetUser.password = hash;
                         await targetUser.save();
                         targetUserDetails['reset_password_token'] = null;
-                        await targetUserDetails.save();                    
-                        
+                        await targetUserDetails.save();
+                    
                         return $sendResponse.success(
                             res,
                             statusCodes.OK,
-                            messages.DONE,
+                            messages.PASSWORD_SUCCESSFULLY_CHANGED,
                             targetUserDetails
                         );
-                    })
-                .catch(() =>
-                    $sendResponse.failed(
-                        res,
-                        statusCodes.INTERNAL_SERVER_ERROR,
-                        messages.SOMETHING_WENT_WRONG
-                    )
-                );
-                }
-            })
-            .catch(() => $sendResponse.failed(res,
-                statusCodes.INTERNAL_SERVER_ERROR,
-                messages.SOMETHING_WENT_WRONG));
-            
-        } else {
+                    }).catch(() =>
+                        $sendResponse.failed(
+                            res,
+                            statusCodes.INTERNAL_SERVER_ERROR,
+                            messages.BCRYPT_ERROR
+                        ));
+            } else {
+                $sendResponse.failed(
+                    res,
+                    statusCodes.NOT_ACCEPTABLE,
+                    messages.SOMETHING_WENT_WRONG
+                )
+            }
+        }).catch(() =>
             $sendResponse.failed(
                 res,
                 statusCodes.INTERNAL_SERVER_ERROR,
                 messages.SOMETHING_WENT_WRONG
-            )  
-        }
-    }).catch(() =>
+            )
+        );
+    } else {
         $sendResponse.failed(
             res,
-            statusCodes.INTERNAL_SERVER_ERROR,
+            statusCodes.EXPECTATION_FAILED,
             messages.SOMETHING_WENT_WRONG
         )
-    );
+    }
 }
 
 export default $callToAction({
