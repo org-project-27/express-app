@@ -201,7 +201,7 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
     const userByEmail = await getUserByPayload({email: payload.email});
     if (userByEmail) {
         const appDomain = process.env.APP_BRAND_DOMAIN;
-        const reset_link_life_hour = 24;
+        const reset_link_life_hour = 1;
         const reset_link_token = jwt.sign(
             {request_key: userByEmail.password},
             process.env.ACCESS_TOKEN_SECRET,
@@ -271,44 +271,52 @@ const refreshToken = (req = {body: {refresh_token: null}}, res) => {
 
 const confirmEmail = async (req = {query: {token: null}}, res) => {
     const {token} = req.query;
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
-        let email = null;
-        if (err) {
-            return $sendResponse.failed(
-                res,
-                statusCodes.FORBIDDEN,
-                messages.LINK_EXPIRED
-            );
-        }
-        email = data.email;
-        if (!email) {
-            return $sendResponse.failed(
-                res,
-                statusCodes.FORBIDDEN,
-                messages.LINK_EXPIRED
-            );
-        }
-        const {id} = await Users.methods.findOne({email}, ['details', 'examples']);
-        if (!id) {
-            return $sendResponse.failed(
-                res,
-                statusCodes.NOT_FOUND,
-                messages.EMAIL_IS_NOT_REGISTERED
-            );
-        }
-        const UserDetails = await UserDetailsModel.model.findByPk(id);
-        if(UserDetails.email_registered === true){
-            return $sendResponse.failed(
-                res,
-                statusCodes.CONFLICT,
-                messages.EMAIL_IS_EXIST
-            );
-        }
-        UserDetails.email_registered = true;
-        await UserDetails.save()
-        return $sendResponse.success(res, statusCodes.OK, messages.EMAIL_SUCCESSFULLY_CONFIRMED);
-
-    });
+    if (token) {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
+            let email = null;
+            if (err) {
+                return $sendResponse.failed(
+                    res,
+                    statusCodes.FORBIDDEN,
+                    messages.LINK_EXPIRED
+                );
+            }
+            email = data.email;
+            if (!email) {
+                return $sendResponse.failed(
+                    res,
+                    statusCodes.FORBIDDEN,
+                    messages.LINK_EXPIRED
+                );
+            }
+            const {id} = await Users.methods.findOne({email}, ['details', 'examples']);
+            if (!id) {
+                return $sendResponse.failed(
+                    res,
+                    statusCodes.NOT_FOUND,
+                    messages.EMAIL_IS_NOT_REGISTERED
+                );
+            }
+            const UserDetails = await UserDetailsModel.model.findByPk(id);
+            if(UserDetails.email_registered === true){
+                return $sendResponse.failed(
+                    res,
+                    statusCodes.CONFLICT,
+                    messages.EMAIL_IS_EXIST
+                );
+            }
+            UserDetails.email_registered = true;
+            await UserDetails.save()
+            return $sendResponse.success(res, statusCodes.OK, messages.EMAIL_SUCCESSFULLY_CONFIRMED);
+    
+        });
+    } else {
+        return $sendResponse.failed(
+            res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.SOMETHING_WENT_WRONG
+        );
+    }
 }
 
 const sendConfirmEmail = async (payload = { email: null, fullname: null }) => {
@@ -329,15 +337,149 @@ const sendConfirmEmail = async (payload = { email: null, fullname: null }) => {
         confirm_link_life_hour,
     });
 }
+
+const resetPasswordTokenVerify =  async (res, payload = {token: null}) => {
+    const { token } = payload;
+    if (token) {
+        const verifyTokenExist = await UserDetailsModel.model.findOne({ where: { reset_password_token: token } });
+        // If token have changed or fake:
+        if (!verifyTokenExist) {
+            $sendResponse.failed(
+                res,
+                statusCodes.FORBIDDEN,
+                messages.LINK_EXPIRED
+            );
+            return null;
+        }
+        return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
+            // If token expired:
+            if (err) {
+                verifyTokenExist['reset_password_token'] = null;
+                verifyTokenExist.save();
+                $sendResponse.failed(
+                    res,
+                    statusCodes.FORBIDDEN,
+                    messages.LINK_EXPIRED
+                );
+                return null;
+            }
+            // If request_key null:
+            if (!data.request_key) {
+                $sendResponse.failed(
+                    res,
+                    statusCodes.INTERNAL_SERVER_ERROR,
+                    messages.SOMETHING_WENT_WRONG
+                );
+                return null;
+            }
+    
+            const targetUser = await Users.model.findByPk(verifyTokenExist.user_id);
+            
+            // If request_key have changed or fake:
+            if (data.request_key !== targetUser.password) {
+                $sendResponse.failed(
+                    res,
+                    statusCodes.FORBIDDEN,
+                    messages.LINK_EXPIRED
+                );
+                return null;
+            }
+            
+            return data.request_key;
+        });
+    } else {
+        $sendResponse.failed(
+            res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.SOMETHING_WENT_WRONG
+        );
+        return null;
+    }
+}
+
+const checkResetPasswordToken =  async (req = {query: {token: null}}, res) => {
+    const { token } = req.query;
+    await resetPasswordTokenVerify(res, { token }).then(result => {
+        if (result) {
+            return $sendResponse.success(
+                res,
+                statusCodes.ACCEPTED,
+                messages.DONE
+            );
+        }
+    })
+}
+
+const resetPassword = async (req = { body: { new_password: null, token: null } }, res) => {
+    const { token, new_password } = req.body;
+    
+    await resetPasswordTokenVerify(res, { token }).then(async (request_key) => {
+        if (request_key) {
+            const targetUser = await Users.model.findOne({ where: { password: request_key } });
+            const targetUserDetails = await UserDetailsModel.model.findOne({ where: { user_id: targetUser.id } });
+            
+            // Check new password is different current one
+            await bcrypt.compare(new_password, targetUser.password)
+            .then(result => {
+                if (result) {
+                    return $sendResponse.failed(res, statusCodes.CONFLICT, messages.DO_NOT_USE_OLD_PASSWORD);
+                } else {
+                    // Update New Password
+                    const saltRound = Number(process.env.HASH_LIMIT) || 10;
+                    bcrypt.hash(new_password, saltRound)
+                    .then(async (hash) => {
+                        targetUser.password = hash;
+                        await targetUser.save();
+                        targetUserDetails['reset_password_token'] = null;
+                        await targetUserDetails.save();                    
+                        
+                        return $sendResponse.success(
+                            res,
+                            statusCodes.OK,
+                            messages.DONE,
+                            targetUserDetails
+                        );
+                    })
+                .catch(() =>
+                    $sendResponse.failed(
+                        res,
+                        statusCodes.INTERNAL_SERVER_ERROR,
+                        messages.SOMETHING_WENT_WRONG
+                    )
+                );
+                }
+            })
+            .catch(() => $sendResponse.failed(res,
+                statusCodes.INTERNAL_SERVER_ERROR,
+                messages.SOMETHING_WENT_WRONG));
+            
+        } else {
+            $sendResponse.failed(
+                res,
+                statusCodes.INTERNAL_SERVER_ERROR,
+                messages.SOMETHING_WENT_WRONG
+            )  
+        }
+    }).catch(() =>
+        $sendResponse.failed(
+            res,
+            statusCodes.INTERNAL_SERVER_ERROR,
+            messages.SOMETHING_WENT_WRONG
+        )
+    );
+}
+
 export default $callToAction({
     GET: {
         '/auth': auth,
         '/confirm_email': confirmEmail,
+        '/reset_password': checkResetPasswordToken
     },
     POST: {
         '/login': login,
         '/signup': signup,
         '/token': refreshToken,
-        '/forgot_password': forgotPassword
+        '/forgot_password': forgotPassword,
+        '/reset_password': resetPassword,
     },
 });
