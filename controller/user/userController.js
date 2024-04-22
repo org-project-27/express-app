@@ -83,6 +83,92 @@ async function checkAllLoginFields(payload, res) {
     return userByEmail;
 }
 
+async function resetPasswordTokenVerify (payload = {token: null}, res) {
+    const { token } = payload;
+    if (token) {
+        const verifyTokenExist = await UserDetailsModel.model.findOne({ where: { reset_password_token: token } });
+        // If token have changed or fake:
+        if (!verifyTokenExist) {
+            $sendResponse.failed(
+                res,
+                statusCodes.FORBIDDEN,
+                messages.LINK_EXPIRED
+            );
+            return null;
+        }
+        return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
+            // If token expired:
+            if (err) {
+                verifyTokenExist['reset_password_token'] = null;
+                verifyTokenExist.save();
+                $sendResponse.failed(
+                    res,
+                    statusCodes.FORBIDDEN,
+                    messages.LINK_EXPIRED
+                );
+                return null;
+            }
+            // If request_key null:
+            if (!data.request_key) {
+                $sendResponse.failed(
+                    res,
+                    statusCodes.INTERNAL_SERVER_ERROR,
+                    messages.SOMETHING_WENT_WRONG
+                );
+                return null;
+            }
+    
+            const targetUser = await Users.model.findByPk(verifyTokenExist.user_id);
+            
+            // If request_key have changed or fake:
+            if (data.request_key !== targetUser.password) {
+                $sendResponse.failed(
+                    res,
+                    statusCodes.FORBIDDEN,
+                    messages.LINK_EXPIRED
+                );
+                return null;
+            }
+            
+            return data.request_key;
+        });
+    } else {
+        $sendResponse.failed(
+            res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.SOMETHING_WENT_WRONG
+        );
+        return null;
+    }
+}
+
+
+// EMAIL METHODS
+async function sendConfirmEmail(payload = { email: null, fullname: null }) {
+    const appDomain = process.env.APP_BRAND_DOMAIN;
+    const confirm_link_life_hour = 24;
+
+    const confirm_email_token = jwt.sign(
+        {email: payload.email},
+        process.env.ACCESS_TOKEN_SECRET,
+        {expiresIn: confirm_link_life_hour * 3600}
+    );
+
+    const confirm_link = `www.${appDomain.toLowerCase()}/confirm_email?token=${confirm_email_token}`;
+
+    return await $sendEmail(payload.email)["@noreply"].confirmEmail({
+        full_name: payload.fullname,
+        confirm_link,
+        confirm_link_life_hour,
+    });
+}
+
+async function sendPasswordChangedEmail(payload = { email: null, fullname: null }) {
+    
+}
+
+// USER SERVICES:
+
 const signup = async (req = {body: Users.modelFields}, res) => {
     const {requiredFields, methods} = Users;
     const payload = trimObjectValues(req.body);
@@ -179,60 +265,6 @@ const auth = async (req = {body: {access_token: null}}, res) => {
             {error: error?.name}));
 };
 
-const forgotPassword = async (req = {body: {email: null}}, res) => {
-    const payload = req.body;
-    const requiredFields = ['email'];
-
-    // step #1: Check required fields is filled
-    const checkRequiredFields = validRequiredFields(requiredFields, payload);
-    if (checkRequiredFields.length) {
-        return $sendResponse.failed(res,
-            statusCodes.EXPECTATION_FAILED,
-            messages.INVALID_EMAIL,
-            {required_fields: checkRequiredFields});
-    }
-    // step #2: Validate email string
-    if (!validateEmail(payload.email)) {
-        return $sendResponse.failed(res,
-            statusCodes.EXPECTATION_FAILED,
-            messages.INVALID_EMAIL);
-    }
-    // step #3: Check email if exist
-    const userByEmail = await getUserByPayload({email: payload.email});
-    if (userByEmail) {
-        const appDomain = process.env.APP_BRAND_DOMAIN;
-        const reset_link_life_hour = 1;
-        const reset_link_token = jwt.sign(
-            {request_key: userByEmail.password},
-            process.env.ACCESS_TOKEN_SECRET,
-            {expiresIn: reset_link_life_hour * 3600}
-        );
-
-        const reset_link = `www.${appDomain.toLowerCase()}/reset_password?token=${reset_link_token}`;
-
-        const UserDetails = await UserDetailsModel.model.findByPk(userByEmail.id);
-
-        await $sendEmail(payload.email)["@noreply"].resetPassword({
-            full_name: userByEmail.fullname,
-            reset_link_life_hour,
-            reset_link,
-        }).then(async () => {
-            UserDetails.reset_password_token = reset_link_token;
-            await UserDetails.save();
-            $sendResponse.success(res);
-        }).catch((error) => {
-            $sendResponse.failed(res,
-                statusCodes.BAD_REQUEST,
-                messages.SOMETHING_WENT_WRONG,
-                error);
-        });
-    } else {
-        $sendResponse.failed(res,
-            statusCodes.NOT_FOUND,
-            messages.EMAIL_IS_NOT_REGISTERED);
-    }
-}
-
 const refreshToken = (req = {body: {refresh_token: null}}, res) => {
     const {refresh_token} = req.body;
     if (!refresh_token) {
@@ -319,87 +351,63 @@ const confirmEmail = async (req = {query: {token: null}}, res) => {
     }
 }
 
-const sendConfirmEmail = async (payload = { email: null, fullname: null }) => {
-    const appDomain = process.env.APP_BRAND_DOMAIN;
-    const confirm_link_life_hour = 24;
+const forgotPassword = async (req = {body: {email: null}}, res) => {
+    const payload = req.body;
+    const requiredFields = ['email'];
 
-    const confirm_email_token = jwt.sign(
-        {email: payload.email},
-        process.env.ACCESS_TOKEN_SECRET,
-        {expiresIn: confirm_link_life_hour * 3600}
-    );
+    // step #1: Check required fields is filled
+    const checkRequiredFields = validRequiredFields(requiredFields, payload);
+    if (checkRequiredFields.length) {
+        return $sendResponse.failed(res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.INVALID_EMAIL,
+            {required_fields: checkRequiredFields});
+    }
+    // step #2: Validate email string
+    if (!validateEmail(payload.email)) {
+        return $sendResponse.failed(res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.INVALID_EMAIL);
+    }
+    // step #3: Check email if exist
+    const userByEmail = await getUserByPayload({email: payload.email});
+    if (userByEmail) {
+        const appDomain = process.env.APP_BRAND_DOMAIN;
+        const reset_link_life_hour = 1;
+        const reset_link_token = jwt.sign(
+            {request_key: userByEmail.password},
+            process.env.ACCESS_TOKEN_SECRET,
+            {expiresIn: reset_link_life_hour * 3600}
+        );
 
-    const confirm_link = `www.${appDomain.toLowerCase()}/confirm_email?token=${confirm_email_token}`;
+        const reset_link = `www.${appDomain.toLowerCase()}/reset_password?token=${reset_link_token}`;
 
-    return await $sendEmail(payload.email)["@noreply"].confirmEmail({
-        full_name: payload.fullname,
-        confirm_link,
-        confirm_link_life_hour,
-    });
-}
+        const UserDetails = await UserDetailsModel.model.findByPk(userByEmail.id);
 
-const resetPasswordTokenVerify =  async (res, payload = {token: null}) => {
-    const { token } = payload;
-    if (token) {
-        const verifyTokenExist = await UserDetailsModel.model.findOne({ where: { reset_password_token: token } });
-        // If token have changed or fake:
-        if (!verifyTokenExist) {
-            $sendResponse.failed(
-                res,
-                statusCodes.FORBIDDEN,
-                messages.LINK_EXPIRED
-            );
-            return null;
-        }
-        return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
-            // If token expired:
-            if (err) {
-                verifyTokenExist['reset_password_token'] = null;
-                verifyTokenExist.save();
-                $sendResponse.failed(
-                    res,
-                    statusCodes.FORBIDDEN,
-                    messages.LINK_EXPIRED
-                );
-                return null;
-            }
-            // If request_key null:
-            if (!data.request_key) {
-                $sendResponse.failed(
-                    res,
-                    statusCodes.INTERNAL_SERVER_ERROR,
-                    messages.SOMETHING_WENT_WRONG
-                );
-                return null;
-            }
-    
-            const targetUser = await Users.model.findByPk(verifyTokenExist.user_id);
-            
-            // If request_key have changed or fake:
-            if (data.request_key !== targetUser.password) {
-                $sendResponse.failed(
-                    res,
-                    statusCodes.FORBIDDEN,
-                    messages.LINK_EXPIRED
-                );
-                return null;
-            }
-            
-            return data.request_key;
+        await $sendEmail(payload.email)["@noreply"].resetPassword({
+            full_name: userByEmail.fullname,
+            reset_link_life_hour,
+            reset_link,
+        }).then(async () => {
+            UserDetails.reset_password_token = reset_link_token;
+            await UserDetails.save();
+            $sendResponse.success(res);
+        }).catch((error) => {
+            $sendResponse.failed(res,
+                statusCodes.BAD_REQUEST,
+                messages.SOMETHING_WENT_WRONG,
+                error);
         });
     } else {
-        $sendResponse.failed(
-            res,
-            statusCodes.EXPECTATION_FAILED,
-            messages.SOMETHING_WENT_WRONG
-        );
-        return null;
+        $sendResponse.failed(res,
+            statusCodes.NOT_FOUND,
+            messages.EMAIL_IS_NOT_REGISTERED);
     }
 }
 
 const checkResetPasswordToken =  async (req = {query: {token: null}}, res) => {
     const { token } = req.query;
-    await resetPasswordTokenVerify(res, { token }).then(result => {
+    await resetPasswordTokenVerify({ token }, res).then(result => {
         if (result) {
             return $sendResponse.success(
                 res,
@@ -418,7 +426,7 @@ const resetPassword = async (req = { body: { new_password: null, token: null } }
                 statusCodes.EXPECTATION_FAILED,
                 messages.INVALID_PASSWORD);
         }
-        await resetPasswordTokenVerify(res, { token }).then(async (request_key) => {
+        await resetPasswordTokenVerify({ token }, res).then(async (request_key) => {
             if (request_key) {
                 const targetUser = await Users.model.findOne({ where: { password: request_key } });
                 const targetUserDetails = await UserDetailsModel.model.findOne({ where: { user_id: targetUser.id } });
