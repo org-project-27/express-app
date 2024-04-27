@@ -13,7 +13,6 @@ import bcrypt from "bcrypt";
 import {trimObjectValues} from "../../assets/helpers/generalHelpers.js";
 import jwt from 'jsonwebtoken';
 import {$sendEmail} from "../../assets/helpers/emailHelper.js";
-import {v4 as uuidv4} from "uuid";
 
 async function getUserByPayload(payload) {
     return await Users.methods.findOne({...payload}, ['details']);
@@ -439,7 +438,15 @@ const resetPassword = async (req = { body: { new_password: null, token: null } }
                         await targetUser.save();
                         targetUserDetails['reset_password_token'] = null;
                         await targetUserDetails.save();
-                    
+
+                        await $sendEmail(targetUser.email)["@noreply"].passwordUpdated({
+                            full_name: targetUser.fullname,
+                            update_date: new Date(),
+                            browser: req.useragent.browser,
+                            os: req.useragent.os,
+                            platform: req.useragent.platform,
+                        });
+
                         return $sendResponse.success(
                             res,
                             statusCodes.OK,

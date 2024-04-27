@@ -16,7 +16,7 @@ export function $sendEmail(to) {
                 const sentEmail = await SMTPAddress.noreply.transporter.sendMail({
                     from: `${appDomain} <${SMTPAddress.noreply.email}>`,
                     to,
-                    subject: "Reset Password!",
+                    subject: "Reset Password",
                     text: "Hello there, here the link for reset your password!",
                     html: await getEmailTemplate('reset_password', {
                         reset_link,
@@ -28,7 +28,7 @@ export function $sendEmail(to) {
                 });
                 console.log("Message sent: %s", sentEmail.response);
                 // -----------------------------------------------------------------
-                return null;
+                return sentEmail;
             },
             async confirmEmail(payload = { full_name: null, confirm_link: null, confirm_link_life_hour: 24}) {
                 console.log(`[@] "Confirm Email" email request: (${SMTPAddress.noreply.email} -> ${to})`);
@@ -37,7 +37,7 @@ export function $sendEmail(to) {
                 const sentEmail = await SMTPAddress.noreply.transporter.sendMail({
                     from: `${appDomain} <${SMTPAddress.noreply.email}>`,
                     to,
-                    subject: "Confirm Email!",
+                    subject: "Confirm Email",
                     text: "Hello there, welcome to Faynn. Please Confirm your email address!",
                     html: await getEmailTemplate('confirm_email', {
                         support_team_email: SMTPAddress.support.email,
@@ -52,6 +52,30 @@ export function $sendEmail(to) {
                 // -----------------------------------------------------------------
                 return sentEmail;
             },
+            async passwordUpdated( payload = { full_name: null, update_date: null, browser: null, os: null, platform: null  }){
+                console.log(`[@] "Password Updated" email request: (${SMTPAddress.noreply.email} -> ${to})`);
+                // -----------------------------------------------------------------
+                const { full_name, update_date, browser, os, platform } = payload;
+                const sentEmail = await SMTPAddress.noreply.transporter.sendMail({
+                    from: `${appDomain} <${SMTPAddress.noreply.email}>`,
+                    to,
+                    subject: "Password Updated",
+                    text: "Your password been successfully updated!",
+                    html: await getEmailTemplate('password_updated', {
+                        support_team_email: SMTPAddress.support.email,
+                        company_name,
+                        full_name,
+                        update_date,
+                        browser,
+                        platform,
+                        os,
+                    }),
+                });
+
+                console.log("Message sent: %s", sentEmail.response);
+                // -----------------------------------------------------------------
+                return sentEmail;
+            }
         },
     }
 }
