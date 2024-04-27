@@ -11,6 +11,7 @@ import dotenv from 'dotenv';
 import database from "./configs/sequelizeConfig.js";
 import HttpCodes from "./assets/helpers/statusCodes.js";
 import sync from "./db/sync.js";
+import useragent from "express-useragent";
 
 dotenv.config();
 const app = express();
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use(useragent.express());
 
 // #AREA - for accept post request data within the request body
 app.use(express.urlencoded({ extended: false }));
