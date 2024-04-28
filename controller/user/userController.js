@@ -300,8 +300,14 @@ const refreshToken = (req = {body: {refresh_token: null}}, res) => {
 };
 
 const confirmEmail = async (req = {query: {token: null}}, res) => {
+    const required_fields = validRequiredFields(['token'], req.query);
+    if (required_fields.length) {
+        return $sendResponse.failed(res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.SOMETHING_WENT_WRONG,
+            { required_fields });
+    } else {
     const {token} = req.query;
-    if (token) {
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
             let email = null;
             if (err) {
@@ -340,12 +346,6 @@ const confirmEmail = async (req = {query: {token: null}}, res) => {
             return $sendResponse.success(res, statusCodes.OK, messages.EMAIL_SUCCESSFULLY_CONFIRMED);
     
         });
-    } else {
-        return $sendResponse.failed(
-            res,
-            statusCodes.EXPECTATION_FAILED,
-            messages.SOMETHING_WENT_WRONG
-        );
     }
 }
 
@@ -358,7 +358,7 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
     if (checkRequiredFields.length) {
         return $sendResponse.failed(res,
             statusCodes.EXPECTATION_FAILED,
-            messages.INVALID_EMAIL,
+            messages.SOMETHING_WENT_WRONG,
             {required_fields: checkRequiredFields});
     }
     // step #2: Validate email string
@@ -397,9 +397,7 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
                 error);
         });
     } else {
-        $sendResponse.failed(res,
-            statusCodes.NOT_FOUND,
-            messages.EMAIL_IS_NOT_REGISTERED);
+        $sendResponse.success(res);
     }
 }
 
