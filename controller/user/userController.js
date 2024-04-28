@@ -389,7 +389,9 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
         }).then(async () => {
             UserDetails.reset_password_token = reset_link_token;
             await UserDetails.save();
-            $sendResponse.success(res);
+            $sendResponse.success(res,
+                statusCodes.OK,
+                messages.PASSWORD_RESET_LINK_WILL_SENT);
         }).catch((error) => {
             $sendResponse.failed(res,
                 statusCodes.BAD_REQUEST,
@@ -397,7 +399,9 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
                 error);
         });
     } else {
-        $sendResponse.success(res);
+        $sendResponse.success(res,
+            statusCodes.OK,
+            messages.PASSWORD_RESET_LINK_WILL_SENT);
     }
 }
 
