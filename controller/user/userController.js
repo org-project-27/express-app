@@ -1,4 +1,4 @@
-import {$sendResponse, $callToAction} from "../../assets/helpers/methods.js";
+import {$sendResponse, $callToAction, $filterObject} from "../../assets/helpers/methods.js";
 import Users from "../../db/models/user.model.js";
 import UserDetailsModel from "../../db/models/userDetails.model.js";
 import statusCodes from "../../assets/helpers/statusCodes.js";
@@ -82,10 +82,10 @@ async function checkAllLoginFields(payload, res) {
     return userByEmail;
 }
 
-async function resetPasswordTokenVerify (payload = {token: null}, res) {
-    const { token } = payload;
+async function resetPasswordTokenVerify(payload = {token: null}, res) {
+    const {token} = payload;
     if (token) {
-        const verifyTokenExist = await UserDetailsModel.model.findOne({ where: { reset_password_token: token } });
+        const verifyTokenExist = await UserDetailsModel.model.findOne({where: {reset_password_token: token}});
         // If token have changed or fake:
         if (!verifyTokenExist) {
             $sendResponse.failed(
@@ -116,9 +116,9 @@ async function resetPasswordTokenVerify (payload = {token: null}, res) {
                 );
                 return null;
             }
-    
+
             const targetUser = await Users.model.findByPk(verifyTokenExist.user_id);
-            
+
             // If request_key have changed or fake:
             if (data.request_key !== targetUser.password) {
                 $sendResponse.failed(
@@ -128,7 +128,7 @@ async function resetPasswordTokenVerify (payload = {token: null}, res) {
                 );
                 return null;
             }
-            
+
             return data.request_key;
         });
     } else {
@@ -141,9 +141,8 @@ async function resetPasswordTokenVerify (payload = {token: null}, res) {
     }
 }
 
-
 // EMAIL METHODS
-async function sendConfirmEmail(payload = { email: null, fullname: null }) {
+async function sendConfirmEmail(payload = {email: null, fullname: null}) {
     const appDomain = process.env.APP_BRAND_DOMAIN;
     const confirm_link_life_hour = 24;
 
@@ -162,8 +161,8 @@ async function sendConfirmEmail(payload = { email: null, fullname: null }) {
     });
 }
 
-async function sendPasswordChangedEmail(payload = { email: null, fullname: null }) {
-    
+async function sendPasswordChangedEmail(payload = {email: null, fullname: null}) {
+
 }
 
 // USER SERVICES:
@@ -254,8 +253,8 @@ const auth = async (req = {body: {access_token: null}}, res) => {
     await getUserByPayload({id: req.user_auth_id})
         .then(data => {
             data['user_id'] = data['id'];
-            delete data['id'];
-            delete data['password'];
+            data = $filterObject(data, ['user_id', 'fullname', 'email', 'details']);
+            data['details'] = $filterObject(data.details, ['phone', 'birthday', 'description', 'email_registered'])
             return $sendResponse.success(res, statusCodes.OK, messages.DONE, {data});
         })
         .catch(error => $sendResponse.failed(res,
@@ -301,8 +300,14 @@ const refreshToken = (req = {body: {refresh_token: null}}, res) => {
 };
 
 const confirmEmail = async (req = {query: {token: null}}, res) => {
+    const required_fields = validRequiredFields(['token'], req.query);
+    if (required_fields.length) {
+        return $sendResponse.failed(res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.SOMETHING_WENT_WRONG,
+            { required_fields });
+    } else {
     const {token} = req.query;
-    if (token) {
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
             let email = null;
             if (err) {
@@ -329,7 +334,7 @@ const confirmEmail = async (req = {query: {token: null}}, res) => {
                 );
             }
             const UserDetails = await UserDetailsModel.model.findByPk(id);
-            if(UserDetails.email_registered === true){
+            if (UserDetails.email_registered === true) {
                 return $sendResponse.failed(
                     res,
                     statusCodes.CONFLICT,
@@ -341,12 +346,6 @@ const confirmEmail = async (req = {query: {token: null}}, res) => {
             return $sendResponse.success(res, statusCodes.OK, messages.EMAIL_SUCCESSFULLY_CONFIRMED);
     
         });
-    } else {
-        return $sendResponse.failed(
-            res,
-            statusCodes.EXPECTATION_FAILED,
-            messages.SOMETHING_WENT_WRONG
-        );
     }
 }
 
@@ -359,7 +358,7 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
     if (checkRequiredFields.length) {
         return $sendResponse.failed(res,
             statusCodes.EXPECTATION_FAILED,
-            messages.INVALID_EMAIL,
+            messages.SOMETHING_WENT_WRONG,
             {required_fields: checkRequiredFields});
     }
     // step #2: Validate email string
@@ -390,7 +389,9 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
         }).then(async () => {
             UserDetails.reset_password_token = reset_link_token;
             await UserDetails.save();
-            $sendResponse.success(res);
+            $sendResponse.success(res,
+                statusCodes.OK,
+                messages.PASSWORD_RESET_LINK_WILL_SENT);
         }).catch((error) => {
             $sendResponse.failed(res,
                 statusCodes.BAD_REQUEST,
@@ -398,15 +399,23 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
                 error);
         });
     } else {
-        $sendResponse.failed(res,
-            statusCodes.NOT_FOUND,
-            messages.EMAIL_IS_NOT_REGISTERED);
+        $sendResponse.success(res,
+            statusCodes.OK,
+            messages.PASSWORD_RESET_LINK_WILL_SENT);
     }
 }
 
-const checkResetPasswordToken =  async (req = {query: {token: null}}, res) => {
-    const { token } = req.query;
-    await resetPasswordTokenVerify({ token }, res).then(result => {
+const checkResetPasswordToken = async (req = {query: {token: null}}, res) => {
+    const required_fields = validRequiredFields(['token'], req.query);
+
+    if (required_fields.length) {
+        return $sendResponse.failed(res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.SOMETHING_WENT_WRONG,
+            { required_fields });
+    }
+    const {token} = req.query;
+    await resetPasswordTokenVerify({token}, res).then(result => {
         if (result) {
             return $sendResponse.success(
                 res,
@@ -417,69 +426,65 @@ const checkResetPasswordToken =  async (req = {query: {token: null}}, res) => {
     })
 }
 
-const resetPassword = async (req = { body: { new_password: null, token: null } }, res) => {
-    const { token, new_password } = req.body;
-    if (token && new_password) {
-        if (validatePasswordStrength(new_password) < 2) {
-            return $sendResponse.failed(res,
-                statusCodes.EXPECTATION_FAILED,
-                messages.INVALID_PASSWORD);
+const resetPassword = async (req = {body: {new_password: null, token: null}}, res) => {
+    const required_fields = validRequiredFields(['new_password', 'token'], req.body);
+
+    if (required_fields.length) {
+        return $sendResponse.failed(res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.SOMETHING_WENT_WRONG,
+            { required_fields });
+    }
+
+    const {token, new_password} = req.body;
+    if (validatePasswordStrength(new_password) < 2) {
+        return $sendResponse.failed(res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.INVALID_PASSWORD);
+    }
+    await resetPasswordTokenVerify({token}, res).then(async (request_key) => {
+        if (request_key) {
+            const targetUser = await Users.model.findOne({where: {password: request_key}});
+            const targetUserDetails = await UserDetailsModel.model.findOne({where: {user_id: targetUser.id}});
+
+            // Update New Password
+            const saltRound = Number(process.env.HASH_LIMIT) || 10;
+            bcrypt.hash(new_password, saltRound)
+                .then(async (hash) => {
+                    targetUser.password = hash;
+                    await targetUser.save();
+                    targetUserDetails['reset_password_token'] = null;
+                    await targetUserDetails.save();
+
+                    await $sendEmail(targetUser.email)["@noreply"].passwordUpdated({
+                        full_name: targetUser.fullname,
+                        update_date: new Date(),
+                        browser: req.useragent.browser,
+                        os: req.useragent.os,
+                        platform: req.useragent.platform,
+                    });
+
+                    return $sendResponse.success(
+                        res,
+                        statusCodes.OK,
+                        messages.PASSWORD_SUCCESSFULLY_CHANGED
+                    );
+                }).catch(() => {
+                    return $sendResponse.failed(
+                        res,
+                        statusCodes.INTERNAL_SERVER_ERROR,
+                        messages.BCRYPT_ERROR
+                    );
+            });
         }
-        await resetPasswordTokenVerify({ token }, res).then(async (request_key) => {
-            if (request_key) {
-                const targetUser = await Users.model.findOne({ where: { password: request_key } });
-                const targetUserDetails = await UserDetailsModel.model.findOne({ where: { user_id: targetUser.id } });
-                
-                // Update New Password
-                const saltRound = Number(process.env.HASH_LIMIT) || 10;
-                bcrypt.hash(new_password, saltRound)
-                    .then(async (hash) => {
-                        targetUser.password = hash;
-                        await targetUser.save();
-                        targetUserDetails['reset_password_token'] = null;
-                        await targetUserDetails.save();
-
-                        await $sendEmail(targetUser.email)["@noreply"].passwordUpdated({
-                            full_name: targetUser.fullname,
-                            update_date: new Date(),
-                            browser: req.useragent.browser,
-                            os: req.useragent.os,
-                            platform: req.useragent.platform,
-                        });
-
-                        return $sendResponse.success(
-                            res,
-                            statusCodes.OK,
-                            messages.PASSWORD_SUCCESSFULLY_CHANGED,
-                            targetUserDetails
-                        );
-                    }).catch(() =>
-                        $sendResponse.failed(
-                            res,
-                            statusCodes.INTERNAL_SERVER_ERROR,
-                            messages.BCRYPT_ERROR
-                        ));
-            } else {
-                $sendResponse.failed(
-                    res,
-                    statusCodes.NOT_ACCEPTABLE,
-                    messages.SOMETHING_WENT_WRONG
-                )
-            }
-        }).catch(() =>
-            $sendResponse.failed(
+    }).catch(() => {
+            return $sendResponse.failed(
                 res,
                 statusCodes.INTERNAL_SERVER_ERROR,
                 messages.SOMETHING_WENT_WRONG
             )
-        );
-    } else {
-        $sendResponse.failed(
-            res,
-            statusCodes.EXPECTATION_FAILED,
-            messages.SOMETHING_WENT_WRONG
-        )
-    }
+        }
+    );
 }
 
 export default $callToAction({
