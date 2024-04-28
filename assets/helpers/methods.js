@@ -72,3 +72,20 @@ export const $authenticateToken = (req, res, next) => {
     next();
   });
 };
+
+export const $filterObject = (target= {}, filters = [], options = { reverse: false }) => {
+  const filteredObject = {};
+  Object.entries(target).forEach(([key, value]) => {
+    if(options.reverse){
+      if(!filters.includes(key)){
+        filteredObject[key] = value;
+      }
+    } else {
+      if(filters.includes(key)){
+        filteredObject[key] = value;
+      }
+    }
+  });
+
+  return filteredObject;
+}
