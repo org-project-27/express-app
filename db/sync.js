@@ -1,9 +1,11 @@
 import Users from './models/user.model.js';
 import UserDetails from './models/userDetails.model.js';
+import TokenSessions from "./models/tokenSessions.js";
 
 const listOfModelsToSync = [
     Users,
     UserDetails,
+    TokenSessions
 ]
 
 export default async function() {
@@ -12,19 +14,6 @@ export default async function() {
         associateTable(target);
         await target.model.sync();
     });
-}
-
-function associateTables(){
-    // User <- One to One -> UserDetails
-    Users.model.hasOne(Users.includes['details'].model, {
-        foreignKey: Users.includes['details'].foreignKey,
-        as: Users.includes['details'].as
-    });
-    Users.includes['details'].model.belongsTo(Users.model, {
-        foreignKey: Users.includes['details'].foreignKey,
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-    } );
 }
 
 function associateTable(Table){

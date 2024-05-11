@@ -3,10 +3,10 @@ import {SMTPAddress} from "../../configs/emailConfigs.js";
 import {promises as fs} from 'fs';
 import {fileURLToPath} from 'url';
 import path from 'path';
-
+import {default_email_lang} from "../constants/language.js";
 const appDomain = process.env.APP_BRAND_DOMAIN;
 const company_name = process.env.APP_BRAND_NAME;
-export function $sendEmail(to) {
+export function $sendEmail(to, lang = default_email_lang) {
     return {
         '@noreply': {
             async resetPassword(payload = { full_name: null, reset_link: null, reset_link_life_hour: null }) {
@@ -24,7 +24,7 @@ export function $sendEmail(to) {
                         company_name,
                         reset_link_life_hour,
                         support_team_email: SMTPAddress.support.email,
-                    }),
+                    }, lang),
                 });
                 console.log("Message sent: %s", sentEmail.response);
                 // -----------------------------------------------------------------
@@ -45,7 +45,7 @@ export function $sendEmail(to) {
                         full_name,
                         confirm_link,
                         confirm_link_life_hour
-                    }),
+                    }, lang),
                 });
 
                 console.log("Message sent: %s", sentEmail.response);
@@ -69,7 +69,7 @@ export function $sendEmail(to) {
                         browser,
                         platform,
                         os,
-                    }),
+                    }, lang),
                 });
 
                 console.log("Message sent: %s", sentEmail.response);
@@ -80,13 +80,12 @@ export function $sendEmail(to) {
     }
 }
 
-export async function getEmailTemplate(template_name, values = {}){
-    const lang = 'en';
+export async function getEmailTemplate(template_name, values = {}, lang = default_email_lang){
     values['logo_url'] = `${appDomain.toLowerCase()}/logo.png`
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     let templateContent = '<strong> Null content </strong>';
     try {
-        const filePath = path.join(__dirname, `../../views/email_templates/${lang}/${template_name}.html`);
+        const filePath = path.join(__dirname, `../../views/email_templates/${lang || default_email_lang}/${template_name}.html`);
         templateContent = await fs.readFile(filePath, 'utf8');
     } catch (error) {
         console.error('Error reading the HTML file', error);
