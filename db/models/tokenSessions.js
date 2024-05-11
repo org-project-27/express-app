@@ -1,53 +1,48 @@
 import {DataTypes, Op} from "sequelize";
 import craftModel from "../craftModel.js";
-import { refactorModelFields } from "../../assets/helpers/modelHelpers.js";
-import TokenSessions from "./tokenSessions.js";
+import {refactorModelFields} from "../../assets/helpers/modelHelpers.js";
 
-const userDetailsModel = {
-    tableName: 'UserDetails',
+const tokenSessionsModel = {
+    tableName: 'TokenSessions',
     tableFields: {
-        user_id: {
+        id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
+            autoIncrement: true,
+            queryValue: 'INT AUTO_INCREMENT PRIMARY KEY'
+        },
+        owner_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            queryValue: 'INT NOT NULL'
+        },
+        created_for: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+            queryValue: 'VARCHAR(50) NOT NULL'
+        },
+        token: {
+            type: DataTypes.STRING(250),
             unique: true,
-            queryValue: 'INT PRIMARY KEY UNIQUE'
+            allowNull: false,
+            queryValue: 'VARCHAR(250) UNIQUE NOT NULL'
         },
-        phone: {
-            type: DataTypes.STRING,
-            queryValue: `VARCHAR(50) UNIQUE`
+        payload: {
+            type: DataTypes.JSON,
+            queryValue: 'JSON'
         },
-        birthday: {
+        expired_at: {
             type: DataTypes.DATE,
-            queryValue: 'DATETIME'
-        },
-        description: {
-            type: DataTypes.STRING,
-            queryValue: 'VARCHAR(255)'
-        },
-        email_registered: {
-            type: DataTypes.BOOLEAN,
-            queryValue: 'BOOL'
-        },
-        preferred_lang: {
-            type: DataTypes.STRING(10),
-            queryValue: 'VARCHAR(10)',
+            allowNull: false,
+            queryValue: 'DATETIME NOT NULL'
         }
     }
 }
 
-const model = craftModel(userDetailsModel, {});
-const modelFields = {...userDetailsModel.tableFields};
-const includes = {
-    tokens: {
-        model: TokenSessions.model,
-        foreignKey: 'owner_id',
-        relationType: 'hasMany',
-        as: 'tokens',
-    },
-}
+const model = craftModel(tokenSessionsModel, {});
+const modelFields = {...tokenSessionsModel.tableFields};
 
-// Cleaning model object
-const { requiredFields } = refactorModelFields(modelFields);
+const {requiredFields} = refactorModelFields(modelFields);
 
 const methods = {
     async findAll(){
@@ -86,7 +81,6 @@ const methods = {
 export default {
     model,
     methods,
-    includes,
     modelFields,
     requiredFields,
 }

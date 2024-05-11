@@ -13,6 +13,13 @@ import bcrypt from "bcrypt";
 import {trimObjectValues} from "../../assets/helpers/generalHelpers.js";
 import jwt from 'jsonwebtoken';
 import {$sendEmail} from "../../assets/helpers/emailHelper.js";
+import {
+    $createTokenSession,
+    $destroyTokenSessionByPk,
+    $getTokenSession,
+    $verifyTokenSession
+} from "../../assets/helpers/jwt.js";
+import {available_email_langs} from "../../assets/constants/language.js";
 
 async function getUserByPayload(payload) {
     return await Users.methods.findOne({...payload}, ['details']);
@@ -85,7 +92,7 @@ async function checkAllLoginFields(payload, res) {
 async function resetPasswordTokenVerify(payload = {token: null}, res) {
     const {token} = payload;
     if (token) {
-        const verifyTokenExist = await UserDetailsModel.model.findOne({where: {reset_password_token: token}});
+        const verifyTokenExist = await $getTokenSession({token, created_for: 'reset_password'});
         // If token have changed or fake:
         if (!verifyTokenExist) {
             $sendResponse.failed(
@@ -98,8 +105,7 @@ async function resetPasswordTokenVerify(payload = {token: null}, res) {
         return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
             // If token expired:
             if (err) {
-                verifyTokenExist['reset_password_token'] = null;
-                verifyTokenExist.save();
+                await $destroyTokenSessionByPk(verifyTokenExist.id);
                 $sendResponse.failed(
                     res,
                     statusCodes.FORBIDDEN,
@@ -117,14 +123,13 @@ async function resetPasswordTokenVerify(payload = {token: null}, res) {
                 return null;
             }
 
-            const targetUser = await Users.model.findByPk(verifyTokenExist.user_id);
-
+            const targetUser = await Users.model.findByPk(verifyTokenExist.owner_id);
             // If request_key have changed or fake:
-            if (data.request_key !== targetUser.password) {
+            if (!targetUser || data.request_key !== targetUser.password) {
                 $sendResponse.failed(
                     res,
                     statusCodes.FORBIDDEN,
-                    messages.LINK_EXPIRED
+                    messages.SOMETHING_WENT_WRONG
                 );
                 return null;
             }
@@ -142,46 +147,45 @@ async function resetPasswordTokenVerify(payload = {token: null}, res) {
 }
 
 // EMAIL METHODS
-async function sendConfirmEmail(payload = {email: null, fullname: null}) {
+async function sendConfirmEmail(payload = {email: null, fullname: null, userId: null, preferred_lang: null}) {
     const appDomain = process.env.APP_BRAND_DOMAIN;
     const confirm_link_life_hour = 24;
 
-    const confirm_email_token = jwt.sign(
+    const confirm_email_token = (await $createTokenSession(
+        payload.userId,
+        'confirm_email',
         {email: payload.email},
-        process.env.ACCESS_TOKEN_SECRET,
-        {expiresIn: confirm_link_life_hour * 3600}
-    );
+        confirm_link_life_hour * 3600,
+    )).token;
 
     const confirm_link = `www.${appDomain.toLowerCase()}/confirm_email?token=${confirm_email_token}`;
 
-    return await $sendEmail(payload.email)["@noreply"].confirmEmail({
+    return await $sendEmail(payload.email, payload.preferred_lang)["@noreply"].confirmEmail({
         full_name: payload.fullname,
         confirm_link,
         confirm_link_life_hour,
     });
-}
-
-async function sendPasswordChangedEmail(payload = {email: null, fullname: null}) {
 
 }
 
 // USER SERVICES:
-
 const signup = async (req = {body: Users.modelFields}, res) => {
-    const {requiredFields, methods} = Users;
+    const {requiredFields} = Users;
     const payload = trimObjectValues(req.body);
     if (await checkAllSignupFields(requiredFields, payload, res)) {
         const saltRound = Number(process.env.HASH_LIMIT) || 10;
         bcrypt.hash(payload.password, saltRound)
             .then(async hash => {
                 payload.password = hash;
-                await methods.create({...payload})
+                await Users.model.create({...payload})
                     .then(async result => {
                         let details = {};
                         details['email_registered'] = false;
+                        details['preferred_lang'] = payload.preferred_lang;
                         details[Users.includes.details.foreignKey] = result.id;
                         await UserDetailsModel.model.create(details);
                         if (payload.email) {
+                            payload['userId'] = result.id;
                             await sendConfirmEmail(payload)
                                 .then(() => {
                                     $sendResponse.success(res,
@@ -254,7 +258,7 @@ const auth = async (req = {body: {access_token: null}}, res) => {
         .then(data => {
             data['user_id'] = data['id'];
             data = $filterObject(data, ['user_id', 'fullname', 'email', 'details']);
-            data['details'] = $filterObject(data.details, ['phone', 'birthday', 'description', 'email_registered'])
+            data['details'] = $filterObject(data.details, ['phone', 'birthday', 'description', 'email_registered', 'preferred_lang'])
             return $sendResponse.success(res, statusCodes.OK, messages.DONE, {data});
         })
         .catch(error => $sendResponse.failed(res,
@@ -308,44 +312,44 @@ const confirmEmail = async (req = {query: {token: null}}, res) => {
             { required_fields });
     } else {
     const {token} = req.query;
-        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, data) => {
-            let email = null;
-            if (err) {
-                return $sendResponse.failed(
-                    res,
-                    statusCodes.FORBIDDEN,
-                    messages.LINK_EXPIRED
-                );
-            }
-            email = data.email;
-            if (!email) {
-                return $sendResponse.failed(
-                    res,
-                    statusCodes.FORBIDDEN,
-                    messages.LINK_EXPIRED
-                );
-            }
-            const {id} = await Users.methods.findOne({email}, ['details', 'examples']);
-            if (!id) {
-                return $sendResponse.failed(
-                    res,
-                    statusCodes.NOT_FOUND,
-                    messages.EMAIL_IS_NOT_REGISTERED
-                );
-            }
-            const UserDetails = await UserDetailsModel.model.findByPk(id);
-            if (UserDetails.email_registered === true) {
-                return $sendResponse.failed(
-                    res,
-                    statusCodes.CONFLICT,
-                    messages.EMAIL_IS_EXIST
-                );
-            }
-            UserDetails.email_registered = true;
-            await UserDetails.save()
-            return $sendResponse.success(res, statusCodes.OK, messages.EMAIL_SUCCESSFULLY_CONFIRMED);
-    
-        });
+    const {payload, session} = await $verifyTokenSession('confirm_email', token);
+        if (!payload) {
+            return $sendResponse.failed(
+                res,
+                statusCodes.FORBIDDEN,
+                messages.LINK_EXPIRED
+            );
+        }
+
+        const { email } = payload;
+        if (!email) {
+            return $sendResponse.failed(
+                res,
+                statusCodes.FORBIDDEN,
+                messages.SOMETHING_WENT_WRONG
+            );
+        }
+        const {id} = await Users.methods.findOne({email}, ['details', 'examples']);
+        if (!id) {
+            return $sendResponse.failed(
+                res,
+                statusCodes.NOT_FOUND,
+                messages.EMAIL_IS_NOT_REGISTERED
+            );
+        }
+        const UserDetails = await UserDetailsModel.model.findByPk(id);
+        if (UserDetails.email_registered === true) {
+            await $destroyTokenSessionByPk(session.id);
+            return $sendResponse.failed(
+                res,
+                statusCodes.CONFLICT,
+                messages.EMAIL_IS_EXIST
+            );
+        }
+        UserDetails.email_registered = true;
+        await UserDetails.save();
+        await $destroyTokenSessionByPk(session.id);
+        return $sendResponse.success(res, statusCodes.OK, messages.EMAIL_SUCCESSFULLY_CONFIRMED);
     }
 }
 
@@ -372,23 +376,21 @@ const forgotPassword = async (req = {body: {email: null}}, res) => {
     if (userByEmail) {
         const appDomain = process.env.APP_BRAND_DOMAIN;
         const reset_link_life_hour = 1;
-        const reset_link_token = jwt.sign(
+        const reset_link_token = (await $createTokenSession(
+            userByEmail.id,
+            'reset_password',
             {request_key: userByEmail.password},
-            process.env.ACCESS_TOKEN_SECRET,
-            {expiresIn: reset_link_life_hour * 3600}
-        );
-
+            reset_link_life_hour * 3600,
+        )).token;
         const reset_link = `www.${appDomain.toLowerCase()}/reset_password?token=${reset_link_token}`;
 
         const UserDetails = await UserDetailsModel.model.findByPk(userByEmail.id);
 
-        await $sendEmail(payload.email)["@noreply"].resetPassword({
+        await $sendEmail(payload.email, UserDetails.preferred_lang)["@noreply"].resetPassword({
             full_name: userByEmail.fullname,
             reset_link_life_hour,
             reset_link,
         }).then(async () => {
-            UserDetails.reset_password_token = reset_link_token;
-            await UserDetails.save();
             $sendResponse.success(res,
                 statusCodes.OK,
                 messages.PASSWORD_RESET_LINK_WILL_SENT);
@@ -444,8 +446,9 @@ const resetPassword = async (req = {body: {new_password: null, token: null}}, re
     }
     await resetPasswordTokenVerify({token}, res).then(async (request_key) => {
         if (request_key) {
-            const targetUser = await Users.model.findOne({where: {password: request_key}});
-            const targetUserDetails = await UserDetailsModel.model.findOne({where: {user_id: targetUser.id}});
+            const targetUser = await Users.model.findOne({where: {password: request_key}, include: ['details']});
+            const {preferred_lang} = targetUser.details.toJSON();
+            const tokenSession = await $getTokenSession({owner_id: targetUser.id, created_for: 'reset_password'})
 
             // Update New Password
             const saltRound = Number(process.env.HASH_LIMIT) || 10;
@@ -453,10 +456,9 @@ const resetPassword = async (req = {body: {new_password: null, token: null}}, re
                 .then(async (hash) => {
                     targetUser.password = hash;
                     await targetUser.save();
-                    targetUserDetails['reset_password_token'] = null;
-                    await targetUserDetails.save();
+                    await $destroyTokenSessionByPk(tokenSession.id);
 
-                    await $sendEmail(targetUser.email)["@noreply"].passwordUpdated({
+                    await $sendEmail(targetUser.email, preferred_lang)["@noreply"].passwordUpdated({
                         full_name: targetUser.fullname,
                         update_date: new Date(),
                         browser: req.useragent.browser,
@@ -487,6 +489,31 @@ const resetPassword = async (req = {body: {new_password: null, token: null}}, re
     );
 }
 
+const setPreferredLang = async (req = {body: {lang: null, user_id: null}}, res) => {
+    const { lang, user_id } = req.body;
+    const required_fields = validRequiredFields(['lang', 'user_id'], req.body);
+    if (required_fields.length) {
+        return $sendResponse.failed(res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.SOMETHING_WENT_WRONG,
+            {required_fields: required_fields});
+    }
+    const targetUser = await UserDetailsModel.model.findByPk(user_id);
+    if(!targetUser){
+        return $sendResponse.failed(res,
+            statusCodes.NOT_FOUND,
+            messages.USER_NOT_FOUND);
+    }
+    if(!available_email_langs.includes(lang)){
+        return $sendResponse.failed(res,
+            statusCodes.EXPECTATION_FAILED,
+            messages.SOMETHING_WENT_WRONG);
+    }
+    targetUser['preferred_lang'] = lang;
+    await targetUser.save();
+    $sendResponse.success(res, 200, 'DONE')
+}
+
 export default $callToAction({
     GET: {
         '/auth': auth,
@@ -500,4 +527,7 @@ export default $callToAction({
         '/forgot_password': forgotPassword,
         '/reset_password': resetPassword,
     },
+    PUT: {
+        '/preferred_lang': setPreferredLang,
+    }
 });
