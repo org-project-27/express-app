@@ -217,24 +217,26 @@ const login = async (req = {body: {email: null, password: null}}, res) => {
     const userByEmail = await checkAllLoginFields(payload, res);
     if (userByEmail) {
         await bcrypt.compare(payload.password, userByEmail.password)
-            .then(result => {
+            .then(async result => {
                 if (result) {
                     // If password is correct
-                    const access_token = jwt.sign(
+                    const access_token = (await $createTokenSession(
+                        userByEmail.id,
+                        'access_token',
                         {user_id: userByEmail.id},
-                        process.env.ACCESS_TOKEN_SECRET,
-                        {expiresIn: Number(process.env.ACCESS_TOKEN_LIFE)}
-                    );
-                    const refresh_token = jwt.sign(
+                        3600 * 24, //24 hour
+                    )).token;
+                    const refresh_token = (await $createTokenSession(
+                        userByEmail.id,
+                        'refresh_token',
                         {user_id: userByEmail.id},
-                        process.env.REFRESH_TOKEN_SECRET,
-                        {expiresIn: Number(process.env.REFRESH_TOKEN_LIFE)}
-                    );
+                        3600 * 24 * 7, //7 week
+                    )).token;
 
                     const data = {
                         access_token,
                         refresh_token,
-                        expires_in: Number(process.env.ACCESS_TOKEN_LIFE)
+                        expires_in: 3600 * 24
                     }
 
                     return $sendResponse.success(res,
@@ -253,7 +255,7 @@ const login = async (req = {body: {email: null, password: null}}, res) => {
     }
 };
 
-const auth = async (req = {body: {access_token: null}}, res) => {
+const auth = async (req, res) => {
     await getUserByPayload({id: req.user_auth_id})
         .then(data => {
             data['user_id'] = data['id'];
@@ -266,6 +268,18 @@ const auth = async (req = {body: {access_token: null}}, res) => {
             messages.SOMETHING_WENT_WRONG,
             {error: error?.name}));
 };
+
+const logout = async (req, res) => {
+    if(!req.user_auth_id){
+       return $sendResponse.failed(res,
+            statusCodes.BAD_REQUEST,
+            messages.SOMETHING_WENT_WRONG);
+    }
+    await $destroyTokenSessionByPk(req.token_session.id);
+    const refreshTokenSession = await $getTokenSession({created_for: 'refresh_token', owner_id: req.user_auth_id});
+    await $destroyTokenSessionByPk(refreshTokenSession.id);
+    $sendResponse.success(res, 200, 'DONE');
+}
 
 const refreshToken = (req = {body: {refresh_token: null}}, res) => {
     const {refresh_token} = req.body;
@@ -517,6 +531,7 @@ const setPreferredLang = async (req = {body: {lang: null, user_id: null}}, res) 
 export default $callToAction({
     GET: {
         '/auth': auth,
+        '/logout': logout,
         '/confirm_email': confirmEmail,
         '/reset_password': checkResetPasswordToken
     },

@@ -3,6 +3,7 @@ import createError from "http-errors";
 import dotenv from "dotenv";
 import apiMessageKeys from "../constants/apiMessageKeys.js";
 import jwt from "jsonwebtoken";
+import {$verifyTokenSession} from "./jwt.js";
 
 dotenv.config();
 const responseDelay = process.env.RESPONSE_DELAY || 0;
@@ -47,7 +48,7 @@ export const $callToAction = (actions) => {
   };
 };
 
-export const $authenticateToken = (req, res, next) => {
+export const $authenticateToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
 
@@ -59,18 +60,17 @@ export const $authenticateToken = (req, res, next) => {
     );
   }
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
-    if (err) {
-      return $sendResponse.failed(
+  const {payload, session} = await $verifyTokenSession('access_token', token);
+  if (!payload) {
+    return $sendResponse.failed(
         res,
         statusCodes.FORBIDDEN,
         apiMessageKeys.INVALID_TOKEN
-      );
-    }
-
-    req["user_auth_id"] = data.user_id;
-    next();
-  });
+    );
+  }
+  req["user_auth_id"] = payload.user_id;
+  req["token_session"] = session;
+  next();
 };
 
 export const $filterObject = (target= {}, filters = [], options = { reverse: false }) => {
