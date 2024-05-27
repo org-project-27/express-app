@@ -24,8 +24,8 @@ export function validateLength(input = '', limit = {min: 2, max: 255}) {
     return null;
 }
 
-export function validRequiredFields(requiredFields: any, payload: any){
-    return (requiredFields.filter((item: any) => !payload[item]));
+export function validRequiredFields(requiredFields: string[], payload: any){
+    return (requiredFields.filter((item: string) => !payload[item]));
 }
 
 export function validatePhoneNumber(input: any) {

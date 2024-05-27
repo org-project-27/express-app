@@ -25,17 +25,21 @@ export const modelRequired = {
     tableFields: {}
 }
 
-export function refactorModelFields(model){
-    const requiredFields = []
+export function refactorModelFields(model: any){
+    const requiredFields: any[] = []
     Object.entries(model).map(([key, value]) => {
         model[key] = null;
+        // @ts-ignore
         if(value.type.key === DataTypes.DATE.key){
             model[key] = new Date();
         }
+        // @ts-ignore
         if(value.autoIncrement || key === 'createdAt' || key === 'updatedAt'){
             delete model[key];
-        } else if(value.allowNull === false){
-            requiredFields.push(key);
+        } else { // @ts-ignore
+            if(value.allowNull === false){
+                        requiredFields.push(key);
+                    }
         }
     });  
     return { requiredFields }

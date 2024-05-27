@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+import bcrypt from "bcrypt";
 
 function createHash(password: any) {
  bcrypt.hash(password, 10, (err: any, hash: any) => {

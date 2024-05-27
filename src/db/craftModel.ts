@@ -1,5 +1,5 @@
-import { modelRequired, premierDefaults } from "../assets/helpers/modelHelpers";
-import database from "../configs/sequelizeConfig";
+import { modelRequired, premierDefaults } from "#assets/helpers/modelHelpers";
+import database from "#assets/configurations/sequelizeConfig";
 
 export default function(
     tableModel = {...modelRequired},

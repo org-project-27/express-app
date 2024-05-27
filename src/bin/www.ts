@@ -1,4 +1,5 @@
-import app from '../app';
+import 'module-alias/register';
+import app from '~/app';
 import http from 'http';
 import debug from "debug";
 
@@ -7,13 +8,6 @@ dotenv.config();
 
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
-
-const server = http.createServer(app);
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
 function normalizePort(val: any) {
   const port = parseInt(val, 10);
 
@@ -59,4 +53,11 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.warn('Listening port:', addr.port)
 }
+
+const server = http.createServer(app);
+
+server.on('error', onError);
+server.on('listening', onListening);
+server.listen(port);

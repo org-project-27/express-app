@@ -1,7 +1,7 @@
 import {DataTypes, Op} from "sequelize";
-import craftModel from "../craftModel";
-import { refactorModelFields } from "../../assets/helpers/modelHelpers";
-import TokenSessions from "./tokenSessions";
+import craftModel from "@/db/craftModel";
+import { refactorModelFields } from "#assets/helpers/modelHelpers";
+import TokenSessions from "#models/tokenSessions";
 
 const userDetailsModel = {
     tableName: 'UserDetails',
