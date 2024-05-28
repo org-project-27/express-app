@@ -46,6 +46,8 @@ class UserController extends Controller {
         this.response.send('login SERVICE')
     }
     private signup = async () => {
+        // #TODO: Read more about from here:
+        // https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases/querying-the-database-typescript-mysql
         const data = trimObjectValues(this.request.body);
         const validationRequiredFields= validRequiredFields(['email', 'fullname', 'password'], data);
         if(validationRequiredFields.length){
