@@ -2,8 +2,11 @@ import {$callToAction, $sendResponse} from "#helpers/methods";
 import {Request, Response} from 'express';
 import {Controller} from "#types/controller";
 import {validRequiredFields} from "#helpers/inputValidation";
-import UserModel from "#models/user.model";
 import apiMessageKeys from "#assets/constants/apiMessageKeys";
+import {trimObjectValues} from "#helpers/generalHelpers";
+import bcrypt from "bcrypt";
+import statusCodes from "#assets/constants/statusCodes";
+
 class UserController extends Controller {
     declare public actions;
     public request;
@@ -12,6 +15,7 @@ class UserController extends Controller {
         super(request, response);
         this.request = request;
         this.response = response;
+
         this.actions['GET']['/auth'] = this.auth;
         this.actions['GET']['/logout'] = this.logout;
         this.actions['GET']['/confirm_email'] =  this.confirmEmail;
@@ -42,16 +46,29 @@ class UserController extends Controller {
         this.response.send('login SERVICE')
     }
     private signup = async () => {
-        const payload = this.request.body
+        const data = trimObjectValues(this.request.body);
+        const validationRequiredFields= validRequiredFields(['email', 'fullname', 'password'], data);
+        if(validationRequiredFields.length){
+            return $sendResponse.failed({required_fields: validationRequiredFields}, this.response);
+        }
         try {
-            await UserModel.model.create({
-                ...payload
-            })
-            UserModel.methods.setUserPassword(payload.password)
-            $sendResponse.success(payload, this.response);
+            const result = await this.database.users.create({
+                data: {
+                    fullname: data.fullname,
+                    email: data.email,
+                    password: data.password,
+                    UserDetails: {
+                        create: {
+                            email_registered: false,
+                            preferred_lang: data.preferred_lang
+                        }
+                    }
+                }
+            });
+            $sendResponse.success(result, this.response, apiMessageKeys.USER_SUCCESSFULLY_REGISTERED);
         }
         catch (error: any) {
-            $sendResponse.failed({}, this.response)
+            $sendResponse.failed({error: error}, this.response)
         }
     }
     private refreshToken = () => {

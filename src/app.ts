@@ -1,5 +1,4 @@
 import 'module-alias/register';
-import database from "#assets/configurations/sequelizeConfig";
 import createHttpError from "http-errors";
 import useragent from "express-useragent";
 import express from "express";
@@ -14,8 +13,7 @@ import HttpCodes from "#assets/constants/statusCodes";
 import indexRouter from "#routes/index";
 import apiRouter from "#routes/api";
 import checkServiceSecretKey from "~/middlewares/checkServiceSecretKey";
-import sync from "~/db/sync";
-
+import checkDatabaseConnection from "~/db/checkDatabaseConnection";
 dotenv.config();
 const app = express();
 // #AREA - view engine setup
@@ -51,18 +49,14 @@ app.use(
 app.use("/", checkServiceSecretKey, indexRouter);
 
 // #AREA - init
-database.authenticate()
+checkDatabaseConnection
     .then(async () => {
-        console.warn("Database started at:", new Date())
-        await sync();
         app.use("/api", apiRouter);
     })
     .catch(async (err: any) => {
-        console.warn("Database crashed at:", new Date())
         app.use("/api", function (req, res, next) {
             next(createHttpError(HttpCodes.SERVICE_UNAVAILABLE));
         });
-        await database.close();
         throw err;
     })
     .finally(() => {
