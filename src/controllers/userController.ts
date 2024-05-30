@@ -1,7 +1,7 @@
 import {$callToAction, $sendResponse} from "#helpers/methods";
 import {Request, Response} from 'express';
 import {Controller} from "#types/controller";
-import {validRequiredFields} from "#helpers/inputValidation";
+import {validateEmail, validateFullName, validatePasswordStrength, validRequiredFields} from "#helpers/inputValidation";
 import apiMessageKeys from "#assets/constants/apiMessageKeys";
 import {trimObjectValues} from "#helpers/generalHelpers";
 import bcrypt from "bcrypt";
@@ -46,19 +46,66 @@ class UserController extends Controller {
         this.response.send('login SERVICE')
     }
     private signup = async () => {
-        // #TODO: Read more about from here:
-        // https://www.prisma.io/docs/getting-started/setup-prisma/add-to-existing-project/relational-databases/querying-the-database-typescript-mysql
         const data = trimObjectValues(this.request.body);
-        const validationRequiredFields= validRequiredFields(['email', 'fullname', 'password'], data);
-        if(validationRequiredFields.length){
-            return $sendResponse.failed({required_fields: validationRequiredFields}, this.response);
-        }
         try {
+            const validationRequiredFields= validRequiredFields(['email', 'fullname', 'password'], data);
+            // step #1: Check required fields is filled
+            if(validationRequiredFields.length){
+                return $sendResponse.failed(
+                    {required_fields: validationRequiredFields},
+                    this.response,
+                    apiMessageKeys.INVALID_EMAIL,
+                    statusCodes.EXPECTATION_FAILED
+                );
+            }
+
+            // step #2: Validate email string
+            if (!validateEmail(data.email)) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.INVALID_EMAIL,
+                    statusCodes.EXPECTATION_FAILED
+                );
+            }
+
+            // step #3: Check is email already exist
+            const emailExist = await this.database.users.findFirst({where: {email: data.email}});
+            if(emailExist){
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.EMAIL_IS_EXIST,
+                    statusCodes.UNPROCESSABLE_ENTITY
+                );
+            }
+
+            // step #4: Validate password strength
+            if (validatePasswordStrength(data.password) < 2) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.INVALID_PASSWORD,
+                    statusCodes.UNPROCESSABLE_ENTITY
+                );
+            }
+
+            // step #5: Validate fullname string
+            if (!validateFullName(data.fullname)) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.INVALID_FULLNAME,
+                    statusCodes.UNPROCESSABLE_ENTITY
+                );
+            }
+
+            const hash_password = await bcrypt.hash(data.password, Number(process.env.HASH_LIMIT) || 10);
             const result = await this.database.users.create({
                 data: {
                     fullname: data.fullname,
                     email: data.email,
-                    password: data.password,
+                    password: hash_password,
                     UserDetails: {
                         create: {
                             email_registered: false,
@@ -67,10 +114,16 @@ class UserController extends Controller {
                     }
                 }
             });
-            $sendResponse.success(result, this.response, apiMessageKeys.USER_SUCCESSFULLY_REGISTERED);
+            return $sendResponse.success(
+                {},
+                this.response,
+                apiMessageKeys.USER_SUCCESSFULLY_REGISTERED,
+                statusCodes.CREATED,
+                {count: result.id}
+            );
         }
         catch (error: any) {
-            $sendResponse.failed({error: error}, this.response)
+            return $sendResponse.failed({error: error}, this.response)
         }
     }
     private refreshToken = () => {
