@@ -123,7 +123,12 @@ class UserController extends Controller {
             );
         }
         catch (error: any) {
-            return $sendResponse.failed({error: error}, this.response)
+            return $sendResponse.failed(
+                {error: error},
+                this.response,
+                apiMessageKeys.SOMETHING_WENT_WRONG,
+                statusCodes.INTERNAL_SERVER_ERROR
+            )
         }
     }
     private refreshToken = () => {
