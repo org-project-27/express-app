@@ -70,25 +70,14 @@ export function $loggedForMorgan(message: string){
     const reqMethod = reqHeader.split(" ")[0] || '--';
     const reqToURL = reqHeader.split(" ")[1] || '--';
     const reqHTTPType =  reqHeader.split(" ")[2] || '--';
-    const reqFromIp = IP.split(" ")[0];
     const reqStatusCode = reqStatus.trim().split(' ')[0];
     const resTime = reqStatus.trim().split(' ')[1] + 'ms';
     const resSuccess = isResponseSuccessful(Number(reqStatusCode))
-    console.log()
-
-    console.log('IP', IP);
-    console.log('reqHeader', reqHeader);
-    console.log('reqStatus', reqStatus);
-    console.log('reqFromURL', reqFromURL);
-    console.log('reqBrowserInfo', reqBrowserInfo);
-    console.log('reqMethod', reqMethod);
-    console.log('reqToURL', reqToURL);
-    console.log('reqHTTPType', reqHTTPType);
-    console.log('reqFromIp', reqFromIp);
-    console.log('reqStatusCode', reqStatusCode);
-    console.log('resTime', resTime);
-    console.log('resSuccess', resSuccess);
+    let reqFromIp = IP.split(" ")[0];
+    if(reqFromIp.includes('::ffff:')){
+        reqFromIp = reqFromIp.replace('::ffff:', 'IP:')
+    }
     const action = `[${reqHeader}](status: ${reqStatusCode}) -- ${resTime}`
 
-    $logged(action, resSuccess, reqFromIp);
+    $logged(action, resSuccess, `${reqFromURL}(${reqFromIp})`);
 }
