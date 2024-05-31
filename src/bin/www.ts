@@ -4,6 +4,7 @@ import http from 'http';
 import debug from "debug";
 
 import dotenv from 'dotenv';
+import {$logged} from "#helpers/generalHelpers";
 dotenv.config();
 
 const port = normalizePort(process.env.PORT || '3000');
@@ -53,7 +54,19 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
-  console.warn('Listening port:', addr.port)
+  console.clear();
+  const EXPRESS: string = `----------------------------------------------------
+
+//////  //   //  /////   /////   /////  /////  /////
+//       // //   //  //  //  //  //     //     // 
+//////    ///    /////   ////    /////  /////  ///// 
+//       // //   //      // //   //        //     //
+//////  //   //  //      //  //  /////  /////  /////
+
+----------------------------------------------------`;
+  console.log(EXPRESS)
+  let log = `Express app running on ${addr.address}${addr.port}`
+  $logged(log, true);
 }
 
 const server = http.createServer(app);
@@ -61,3 +74,4 @@ const server = http.createServer(app);
 server.on('error', onError);
 server.on('listening', onListening);
 server.listen(port);
+

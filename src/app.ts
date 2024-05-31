@@ -14,13 +14,17 @@ import indexRouter from "#routes/index";
 import apiRouter from "#routes/api";
 import checkServiceSecretKey from "~/middlewares/checkServiceSecretKey";
 import checkDatabaseConnection from "~/db/checkDatabaseConnection";
+import {$loggedForMorgan} from "#helpers/generalHelpers";
 dotenv.config();
 const app = express();
 // #AREA - view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-app.use(logger("dev"));
+const customLogStream = { write: (message: string) => $loggedForMorgan(message)};
+
+app.use(logger("combined", {stream: customLogStream}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
