@@ -14,11 +14,23 @@ export type Methods = {
 export class Controller {
     public request: Request;
     public response: Response;
+
+    public reqBody: { authentication_result: Object } | any;
+    public reqQuery: Object;
+    public reqParams: Object
+    public reqCookies: Object;
+
     public actions: Methods;
     public database = new PrismaClient();
     constructor(request: Request, response: Response) {
         this.request = request;
         this.response = response;
+
+        this.reqBody = request.body;
+        this.reqQuery = request.query;
+        this.reqParams = request.params;
+        this.reqCookies = request.cookies;
+
         this.actions = {
             GET: {},
             POST: {},

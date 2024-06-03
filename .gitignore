@@ -2,3 +2,4 @@
 .env
 sendgrid.env
 !/logs.txt
+./logs.txt

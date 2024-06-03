@@ -40,19 +40,22 @@ export function isResponseSuccessful(statusCode: number) {
     return statusCode >= 200 && statusCode < 300;
 }
 
+type  loggedTrigger = 'node' | 'prisma' | 'token_controller' | 'user_controller' | string
 
-export function $logged(action: string | undefined = undefined, success: boolean, trigger: string = 'node'){
-    const type = success ? 'DONE' : "FAILED";
-    const logFilePath = 'logs.txt';
+export function $logged(action: string | undefined = undefined, success: boolean, trigger: loggedTrigger = 'node', ip: string | null = null){
+    const type = success ? 'DONE' : 'FAIL';
+    const logFilePath = 'src/bin/logs.txt';
 
     const date = {
         clock: moment().format('HH:mm:ss'),
         calendar: moment().format('DD/MM/YYYY')
     }
-
+    if(ip && ip.includes('::ffff:')){
+        ip = ip.replace('::ffff:', '')
+    }
     const logDate = `${date.calendar}:${date.clock}`;
 
-    const log = `> [${type}] [${logDate}] <from:"${trigger}"> "${action}" `;
+    const log = `# ${success ? '[🟢]' : '[🔴]'}[${type}][${logDate}] -> [from:"${trigger}"${ip ? '(🏷️IP:'+ ip + ')' : ''}] => [${action}]`;
     console.log(log);
     let beforeLogs = readFromFile(logFilePath);
     const logs = beforeLogs + "\n" + log;
@@ -74,10 +77,23 @@ export function $loggedForMorgan(message: string){
     const resTime = reqStatus.trim().split(' ')[1] + 'ms';
     const resSuccess = isResponseSuccessful(Number(reqStatusCode))
     let reqFromIp = IP.split(" ")[0];
-    if(reqFromIp.includes('::ffff:')){
-        reqFromIp = reqFromIp.replace('::ffff:', 'IP:')
-    }
-    const action = `[${reqHeader}](status: ${reqStatusCode}) -- ${resTime}`
+    const action = `🔘<${reqHeader})>(status: ${reqStatusCode}) -- ${resTime}`
 
-    $logged(action, resSuccess, `${reqFromURL}(${reqFromIp})`);
+    $logged(action, resSuccess, `${reqFromURL}`, reqFromIp);
+}
+
+export const $filterObject = (target: object, filters:Array<string>, options: any = { reverse: false }) => {
+    const filteredObject: any = {};
+    Object.entries(target).forEach(([key, value]) => {
+        if(options.reverse){
+            if(!filters.includes(key)){
+                filteredObject[key] = value;
+            }
+        } else {
+            if(filters.includes(key)){
+                filteredObject[key] = value;
+            }
+        }
+    });
+    return filteredObject;
 }

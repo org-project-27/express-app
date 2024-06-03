@@ -25,7 +25,7 @@ CREATE TABLE TokenSessions(
     created_for VARCHAR(55) NOT NULL,
     token VARCHAR(255) NOT NULL,
     payload JSON NOT NULL,
-    expired_at DATE NOT NULL,
+    expired_in VARCHAR(55) NOT NULL,
     owner_id INTEGER NOT NULL,
     FOREIGN KEY (owner_id) REFERENCES UserDetails(user_id) ON DELETE CASCADE
 );

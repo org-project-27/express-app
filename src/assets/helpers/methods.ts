@@ -2,10 +2,7 @@ import statusCodes from "../constants/statusCodes";
 import createError from "http-errors";
 import dotenv from "dotenv";
 import apiMessageKeys from "../constants/apiMessageKeys";
-import jwt from "jsonwebtoken";
-import {$verifyTokenSession} from "./jwt";
 import { Request, Response, NextFunction } from 'express';
-import {Methods} from "#types/controller";
 
 dotenv.config();
 let responseDelay: number = Number(process.env.RESPONSE_DELAY || 0);
@@ -51,19 +48,3 @@ export const $callToAction = (controller: any) => {
     }
   };
 };
-
-export const $filterObject = (target: object, filters:Array<string>, options: any = { reverse: false }) => {
-  const filteredObject: any = {};
-  Object.entries(target).forEach(([key, value]) => {
-    if(options.reverse){
-      if(!filters.includes(key)){
-        filteredObject[key] = value;
-      }
-    } else {
-      if(filters.includes(key)){
-        filteredObject[key] = value;
-      }
-    }
-  });
-  return filteredObject;
-}

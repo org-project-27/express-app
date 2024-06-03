@@ -1,9 +1,9 @@
 import express, { Request, Response } from 'express';
 const router = express.Router();
-import userController from "#controllers/userController";
+import UserController from "#controllers/UserController";
 import $authenticateToken from "~/middlewares/authenticateToken";
 
-router.get('/auth',  $authenticateToken, userController);
-router.get('/logout',  $authenticateToken, userController);
-router.use('/', userController);
+router.get('/auth',  $authenticateToken, UserController);
+router.get('/logout',  $authenticateToken, UserController);
+router.use('/', UserController);
 export default router;

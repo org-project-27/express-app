@@ -21,8 +21,8 @@ const app = express();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
+// #AREA - Logging settings
 const customLogStream = { write: (message: string) => $loggedForMorgan(message)};
-
 app.use(logger("combined", {stream: customLogStream}));
 
 app.use(express.json());

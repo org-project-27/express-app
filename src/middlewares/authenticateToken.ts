@@ -1,31 +1,35 @@
 import statusCodes from "#assets/constants/statusCodes";
 import apiMessageKeys from "#assets/constants/apiMessageKeys";
-import {$verifyTokenSession} from "#helpers/jwt";
 import {$sendResponse} from "#helpers/methods";
 import {NextFunction, Request, Response} from "express";
+import TokenSessionController from "#controllers/TokenSessionController";
+import {JwtPayload} from "jsonwebtoken";
 
 export default async (req: Request, res: Response, next: NextFunction) => {
-    // const authHeader = req.headers["authorization"];
-    // const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
-    //
-    // if (token == null) {
-    //     return $sendResponse.failed(
-    //         res,
-    //         statusCodes.UNAUTHORIZED,
-    //         apiMessageKeys.SOMETHING_WENT_WRONG
-    //     );
-    // }
-    //
-    // const {payload, session} = await $verifyTokenSession('access_token', token);
-    // if (!payload) {
-    //     return $sendResponse.failed(
-    //         res,
-    //         statusCodes.FORBIDDEN,
-    //         apiMessageKeys.INVALID_TOKEN
-    //     );
-    // }
-    // // @ts-ignore
-    // req.headers["user_auth_id"] = payload.user_id;
-    // req.headers["token_session"] = session;
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
+    const sessions = new TokenSessionController(req, res);
+
+    if (token == null) {
+        return $sendResponse.failed(
+            {},
+            res,
+            apiMessageKeys.SOMETHING_WENT_WRONG,
+            statusCodes.UNAUTHORIZED,
+        );
+    }
+
+    const result = await sessions.verify('access_token', token);
+
+
+    if (!result) {
+        return $sendResponse.failed(
+            {},
+            res,
+            apiMessageKeys.INVALID_TOKEN,
+            statusCodes.FORBIDDEN,
+        );
+    }
+    req.body['authentication_result'] = JSON.stringify(result);
     next();
 };

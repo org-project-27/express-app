@@ -6,7 +6,17 @@ import debug from "debug";
 import dotenv from 'dotenv';
 import {$logged} from "#helpers/generalHelpers";
 dotenv.config();
-
+console.clear();
+const EXPRESS: string = `+----------------------------------------------------------+
+|                                                          |
+|   //////  //   //  /////   /////   /////  /////  /////   |
+|   //       // //   //  //  //  //  //     //     //      |
+|   //////    ///    /////   ////    /////  /////  /////   |
+|   //       // //   //      // //   //        //     //   |
+|   //////  //   //  //      //  //  /////  /////  /////   |
+|                                                          |
++----------------------------------------------------------+`;
+console.log(EXPRESS)
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 function normalizePort(val: any) {
@@ -36,11 +46,13 @@ function onError(error: any) {
 
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+      let log_EACCES = bind + ' requires elevated privileges'
+      $logged(log_EACCES, false);
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+      let log_EADDRINUSE = bind + ' is already in use';
+      $logged(log_EADDRINUSE, false);
       process.exit(1);
       break;
     default:
@@ -54,17 +66,6 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
-  console.clear();
-  const EXPRESS: string = `----------------------------------------------------
-
-//////  //   //  /////   /////   /////  /////  /////
-//       // //   //  //  //  //  //     //     // 
-//////    ///    /////   ////    /////  /////  ///// 
-//       // //   //      // //   //        //     //
-//////  //   //  //      //  //  /////  /////  /////
-
-----------------------------------------------------`;
-  console.log(EXPRESS)
   let log = `Express app running on ${addr.address}${addr.port}`
   $logged(log, true);
 }
