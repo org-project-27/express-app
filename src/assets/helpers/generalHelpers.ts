@@ -1,5 +1,7 @@
 import * as fs from "node:fs";
 import moment from "moment";
+import path from "path";
+import {PathLike} from "node:fs";
 
 export function deepCopy(model: any){
     return JSON.parse(JSON.stringify(model));
@@ -37,12 +39,23 @@ export function readFromFile(filePath: string) {
 
 export function isResponseSuccessful(statusCode: number) {
     // Check if the status code is in the range of 200 to 299, which typically indicates success
-    return statusCode >= 200 && statusCode < 300;
+    return statusCode ===304 || statusCode >= 200 && statusCode < 300;
 }
 
-type  loggedTrigger = 'node' | 'prisma' | 'token_controller' | 'user_controller' | string
-
-export function $logged(action: string | undefined = undefined, success: boolean, trigger: loggedTrigger = 'node', ip: string | null = null){
+type loggedTrigger = 'node' | 'prisma' | string;
+type loggedTriggerObjectType = {
+    from: loggedTrigger,
+    file: string | PathLike | any,
+    url: string | PathLike | any,
+} | object
+export function $logged(
+    action: string | undefined = undefined,
+    success: boolean,
+    trigger: loggedTriggerObjectType = {
+        from: "node",
+    },
+    ip: string | null = null
+){
     const type = success ? 'DONE' : 'FAIL';
     const logFilePath = 'src/bin/logs.txt';
 
@@ -55,7 +68,7 @@ export function $logged(action: string | undefined = undefined, success: boolean
     }
     const logDate = `${date.calendar}:${date.clock}`;
 
-    const log = `# ${success ? '[🟢]' : '[🔴]'}[${type}][${logDate}] -> [from:"${trigger}"${ip ? '(🏷️IP:'+ ip + ')' : ''}] => [${action}]`;
+    const log = `# ${success ? '[🟢]' : '[🔴]'}[${type}][${logDate}] -> [${JSON.stringify(trigger)}${ip ? '(🏷️IP:'+ ip + ')' : ''}] => [${action}]`;
     console.log(log);
     let beforeLogs = readFromFile(logFilePath);
     const logs = beforeLogs + "\n" + log;
@@ -78,8 +91,7 @@ export function $loggedForMorgan(message: string){
     const resSuccess = isResponseSuccessful(Number(reqStatusCode))
     let reqFromIp = IP.split(" ")[0];
     const action = `🔘<${reqHeader})>(status: ${reqStatusCode}) -- ${resTime}`
-
-    $logged(action, resSuccess, `${reqFromURL}`, reqFromIp);
+    $logged(action, resSuccess, {from: 'morgan' , url: `${reqFromURL}`}, reqFromIp);
 }
 
 export const $filterObject = (target: object, filters:Array<string>, options: any = { reverse: false }) => {

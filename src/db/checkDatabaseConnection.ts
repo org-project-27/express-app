@@ -8,12 +8,12 @@ const checkDatabaseConnection = async () => {
         // Try to run a simple query to check the connection
         await prisma.$connect();
         await prisma.$queryRaw`SELECT 1`;
-        $logged('Prisma successfully connected', true, 'prisma');
-        $logged("Database started!", true, 'prisma')
+        $logged('Prisma successfully connected', true, {from: 'prisma'});
+        $logged("Database started!", true, {from: 'prisma'})
         await afterConnect(prisma)
     } catch (error) {
         console.error('PrismaError connecting to the database:', error);
-        $logged('Database crashed', false, 'prisma')
+        $logged('Database crashed', false, {from: 'prisma'})
         process.exit(1); // Exit the process with an error code
     }
     console.log('------------------------------------------------------------')
@@ -35,7 +35,7 @@ async function dropAllExpiredSessions(prisma: any){
                         $logged(
                             error,
                             false,
-                            'prisma'
+                            {from: 'prisma'}
                         )
                     })
             }
@@ -43,13 +43,13 @@ async function dropAllExpiredSessions(prisma: any){
         $logged(
             'All expired token sessions dropped',
             true,
-            'prisma'
+            {from: 'prisma'}
         )
     } catch (error: any) {
         $logged(
             error,
             false,
-            'dropAllExpiredSessions'
+            {from: 'prisma'}
         )
     }
 }

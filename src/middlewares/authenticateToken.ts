@@ -14,7 +14,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         return $sendResponse.failed(
             {},
             res,
-            apiMessageKeys.SOMETHING_WENT_WRONG,
+            apiMessageKeys.INVALID_TOKEN,
             statusCodes.UNAUTHORIZED,
         );
     }

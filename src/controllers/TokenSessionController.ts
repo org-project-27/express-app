@@ -15,7 +15,20 @@ export default class TokenSessionController extends Controller {
     constructor(request: Request, response: Response) {
         super(request, response);
     }
-
+    public static tokenLifeDays: TokenLifeTypes = {
+        default: 1/24,
+        confirm_email: 1,
+        access_token: 7,
+        refresh_token: 30,
+        reset_password: 30,
+    }
+    public static tokenLifeHours: TokenLifeTypes = {
+        default: 24 * TokenSessionController.tokenLifeDays.default,
+        confirm_email: 24 * TokenSessionController.tokenLifeDays.confirm_email,
+        access_token: 24 * TokenSessionController.tokenLifeDays.access_token,
+        refresh_token: 24 * TokenSessionController.tokenLifeDays.refresh_token,
+        reset_password: 24 * TokenSessionController.tokenLifeDays.reset_password,
+    }
     private static secretKeys: SecretKeysTypes = {
         default: process.env.ACCESS_TOKEN_SECRET || 'undefined_secret_key',
         access_token: process.env.ACCESS_TOKEN_SECRET || 'undefined_secret_key',
@@ -24,26 +37,22 @@ export default class TokenSessionController extends Controller {
         reset_password: process.env.ACCESS_TOKEN_SECRET || 'undefined_secret_key',
 
     }
-
     private static dayBySeconds(day: number): number {
         return (3600 * 24) * day;
     }
-
     private static tokenLifeSeconds: TokenLifeTypes = {
-        default: 3600, // 1 hour,
-        confirm_email: 3600, // 1 hour,
-        access_token: TokenSessionController.dayBySeconds(7), // 7 day
-        refresh_token: TokenSessionController.dayBySeconds(30), // 30 day,
-        reset_password: TokenSessionController.dayBySeconds(30), // 30 day,
+        default: TokenSessionController.dayBySeconds(TokenSessionController.tokenLifeDays.default),
+        confirm_email: TokenSessionController.dayBySeconds(TokenSessionController.tokenLifeDays.confirm_email),
+        access_token: TokenSessionController.dayBySeconds(TokenSessionController.tokenLifeDays.access_token),
+        refresh_token: TokenSessionController.dayBySeconds(TokenSessionController.tokenLifeDays.refresh_token),
+        reset_password: TokenSessionController.dayBySeconds(TokenSessionController.tokenLifeDays.reset_password),
     }
-
     private static isDateExpired(date: string) {
         const now = moment();
         const dateToCheck = moment(date);
 
         return dateToCheck.isBefore(now);
     }
-
     public async create(ownerId: number, createdFor: CreatedForTypes, payload: object = {}) {
         const {secretKeys, tokenLifeSeconds} = TokenSessionController;
         const expiresIn = tokenLifeSeconds[createdFor] || tokenLifeSeconds.default;
@@ -81,7 +90,7 @@ export default class TokenSessionController extends Controller {
             $logged(
                 `New token session created for "${createdFor}", (owner_id: ${ownerId})`.toUpperCase(),
                 true,
-                `token_session_controller`,
+                {file: __filename.split('/src')[1]},
                 this.request.ip
             )
             return {
@@ -93,13 +102,12 @@ export default class TokenSessionController extends Controller {
             $logged(
                 error,
                 false,
-                `token_session_controller`,
+                {file: __filename.split('/src')[1]},
                 this.request.ip
             )
             throw error;
         }
     }
-
     public async verify(createdFor: CreatedForTypes, token: string) {
         try {
             const {secretKeys, isDateExpired} = TokenSessionController;
@@ -123,13 +131,12 @@ export default class TokenSessionController extends Controller {
             $logged(
                 error,
                 false,
-                `token_session_controller`,
+                {file: __filename.split('/src')[1]},
                 this.request.ip
             )
             throw error;
         }
     }
-
     public async kill(sessionId: number) {
         try {
             await this.database.tokenSessions.findFirst({
@@ -149,12 +156,11 @@ export default class TokenSessionController extends Controller {
             $logged(
                 error,
                 false,
-                `token_session_controller`,
+                {file: __filename.split('/src')[1]},
                 this.request.ip
             )
         }
     }
-
     public async dropAllExpiredSessions() {
         try {
             const {isDateExpired} = TokenSessionController;
@@ -168,13 +174,13 @@ export default class TokenSessionController extends Controller {
             $logged(
                 'All expired sessions dropped'.toUpperCase(),
                 true,
-                `token_session_controller`,
+                {file: __filename.split('/src')[1]},
             )
         } catch (error: any) {
             $logged(
                 error,
                 false,
-                `token_session_controller`,
+                {file: __filename.split('/src')[1]},
                 this.request.ip
             )
         }

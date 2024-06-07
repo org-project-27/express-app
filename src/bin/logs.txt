@@ -1,282 +1,64 @@
-+----------------------------------------------------------+
-|                                                          |
-|   //////  //   //  /////   /////   /////  /////  /////   |
-|   //       // //   //  //  //  //  //     //     //      |
-|   //////    ///    /////   ////    /////  /////  /////   |
-|   //       // //   //      // //   //        //     //   |
-|   //////  //   //  //      //  //  /////  /////  /////   |
-|                                                          |
-+----------------------------------------------------------+
-
-# [🟢][DONE][03/06/2024:01:18:19] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:01:18:19] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:01:18:19] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:01:18:19] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:01:18:38] -> [from:"user_controller"(🏷️IP:::1)] => [NEW USER REGISTERED, USER_ID: 20]
-# [🟢][DONE][03/06/2024:01:18:38] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/signup HTTP/1.1)>(status: 201) -- 78ms]
-# [🔴][FAIL][03/06/2024:01:18:41] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/signup HTTP/1.1)>(status: -) -- -ms]
-# [🔴][FAIL][03/06/2024:01:18:42] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/signup HTTP/1.1)>(status: 422) -- 44ms]
-# [🟢][DONE][03/06/2024:01:18:59] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/login HTTP/1.1)>(status: 204) -- 0ms]
-# [🔴][FAIL][03/06/2024:01:19:00] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 401) -- 57ms]
-# [🟢][DONE][03/06/2024:01:19:00] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/login HTTP/1.1)>(status: 204) -- 0ms]
-# [🔴][FAIL][03/06/2024:01:19:01] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 401) -- 57ms]
-# [🟢][DONE][03/06/2024:01:19:07] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/signup HTTP/1.1)>(status: 204) -- 0ms]
-# [🟢][DONE][03/06/2024:01:19:07] -> [from:"user_controller"(🏷️IP:192.168.31.157)] => [NEW USER REGISTERED, USER_ID: 21]
-# [🟢][DONE][03/06/2024:01:19:07] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/signup HTTP/1.1)>(status: 201) -- 78ms]
-# [🟢][DONE][03/06/2024:01:19:08] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/signup HTTP/1.1)>(status: 204) -- 0ms]
-# [🔴][FAIL][03/06/2024:01:19:09] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/signup HTTP/1.1)>(status: 422) -- 44ms]
-# [🔴][FAIL][03/06/2024:01:19:19] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: -) -- -ms]
-# [🔴][FAIL][03/06/2024:01:19:20] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:19:21] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:19:22] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🟢][DONE][03/06/2024:01:23:08] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:01:23:08] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:01:23:08] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:01:23:08] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🔴][FAIL][03/06/2024:01:26:14] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:26:16] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: -) -- -ms]
-# [🔴][FAIL][03/06/2024:01:26:16] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: -) -- -ms]
-# [🔴][FAIL][03/06/2024:01:26:17] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: -) -- -ms]
-# [🔴][FAIL][03/06/2024:01:26:17] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: -) -- -ms]
-# [🔴][FAIL][03/06/2024:01:26:18] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:26:18] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:26:19] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: -) -- -ms]
-# [🔴][FAIL][03/06/2024:01:26:19] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:01:26:23] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:23] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:23] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 427ms]
-# [🟢][DONE][03/06/2024:01:26:24] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:24] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:24] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 427ms]
-# [🟢][DONE][03/06/2024:01:26:25] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:25] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:25] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 427ms]
-# [🔴][FAIL][03/06/2024:01:26:25] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:01:26:25] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:25] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:26:26] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:01:26:26] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:26] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:26] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:26] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:26:26] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:01:26:30] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:30] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:30] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 427ms]
-# [🔴][FAIL][03/06/2024:01:26:32] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:01:26:32] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:32] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:26:32] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:01:26:32] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:32] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:26:33] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:01:26:33] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:33] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:26:33] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:01:26:34] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:34] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:26:37] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:01:26:37] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:37] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:26:38] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:01:26:38] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:38] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:39] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:39] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:39] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 427ms]
-# [🟢][DONE][03/06/2024:01:26:40] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:40] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:40] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 427ms]
-# [🟢][DONE][03/06/2024:01:26:41] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:41] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:41] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 427ms]
-# [🟢][DONE][03/06/2024:01:26:42] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:42] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:26:43] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 427ms]
-# [🔴][FAIL][03/06/2024:01:30:56] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:30:57] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:30:58] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: -) -- -ms]
-# [🔴][FAIL][03/06/2024:01:30:59] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:31:00] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:31:01] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🟢][DONE][03/06/2024:01:37:41] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:01:37:41] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:01:37:41] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:01:37:41] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:01:38:38] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:01:38:38] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:01:38:38] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:01:38:39] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:01:42:31] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:01:42:31] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:01:42:31] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:01:42:31] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:01:45:05] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:01:45:05] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:01:45:05] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:01:45:05] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:01:45:53] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:01:45:53] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:01:45:53] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:01:45:53] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:01:51:00] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:01:51:00] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:01:51:00] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:01:51:00] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:01:51:07] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:51:07] -> [from:"token_session_controller"(🏷️IP:::1)] => [PrismaClientKnownRequestError: 
-Invalid `this.database.tokenSessions.upsert()` invocation in
-/Users/vugarsafarzada/Desktop/Files/Develop/My Projects/e-commercial-app/express-app/src/controllers/TokenSessionController.ts:60:62
-
-  57         created_for: createdFor
-  58     }
-  59 });
-→ 60 const result = await this.database.tokenSessions.upsert(
-The provided value for the column is too long for the column's type. Column: token]
-# [🔴][FAIL][03/06/2024:01:51:07] -> [from:"user_controller"] => [PrismaClientKnownRequestError: 
-Invalid `this.database.tokenSessions.upsert()` invocation in
-/Users/vugarsafarzada/Desktop/Files/Develop/My Projects/e-commercial-app/express-app/src/controllers/TokenSessionController.ts:60:62
-
-  57         created_for: createdFor
-  58     }
-  59 });
-→ 60 const result = await this.database.tokenSessions.upsert(
-The provided value for the column is too long for the column's type. Column: token]
-# [🔴][FAIL][03/06/2024:01:51:08] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 500) -- 50ms]
-# [🟢][DONE][03/06/2024:01:52:19] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:52:19] -> [from:"token_session_controller"(🏷️IP:::1)] => [PrismaClientKnownRequestError: 
-Invalid `this.database.tokenSessions.upsert()` invocation in
-/Users/vugarsafarzada/Desktop/Files/Develop/My Projects/e-commercial-app/express-app/src/controllers/TokenSessionController.ts:60:62
-
-  57         created_for: createdFor
-  58     }
-  59 });
-→ 60 const result = await this.database.tokenSessions.upsert(
-The provided value for the column is too long for the column's type. Column: token]
-# [🔴][FAIL][03/06/2024:01:52:19] -> [from:"user_controller"] => [PrismaClientKnownRequestError: 
-Invalid `this.database.tokenSessions.upsert()` invocation in
-/Users/vugarsafarzada/Desktop/Files/Develop/My Projects/e-commercial-app/express-app/src/controllers/TokenSessionController.ts:60:62
-
-  57         created_for: createdFor
-  58     }
-  59 });
-→ 60 const result = await this.database.tokenSessions.upsert(
-The provided value for the column is too long for the column's type. Column: token]
-# [🔴][FAIL][03/06/2024:01:52:20] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 500) -- 50ms]
-# [🟢][DONE][03/06/2024:01:52:22] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:52:22] -> [from:"token_session_controller"(🏷️IP:::1)] => [PrismaClientKnownRequestError: 
-Invalid `this.database.tokenSessions.upsert()` invocation in
-/Users/vugarsafarzada/Desktop/Files/Develop/My Projects/e-commercial-app/express-app/src/controllers/TokenSessionController.ts:60:62
-
-  57         created_for: createdFor
-  58     }
-  59 });
-→ 60 const result = await this.database.tokenSessions.upsert(
-The provided value for the column is too long for the column's type. Column: token]
-# [🔴][FAIL][03/06/2024:01:52:22] -> [from:"user_controller"] => [PrismaClientKnownRequestError: 
-Invalid `this.database.tokenSessions.upsert()` invocation in
-/Users/vugarsafarzada/Desktop/Files/Develop/My Projects/e-commercial-app/express-app/src/controllers/TokenSessionController.ts:60:62
-
-  57         created_for: createdFor
-  58     }
-  59 });
-→ 60 const result = await this.database.tokenSessions.upsert(
-The provided value for the column is too long for the column's type. Column: token]
-# [🔴][FAIL][03/06/2024:01:52:22] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 500) -- 50ms]
-# [🟢][DONE][03/06/2024:01:53:51] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:01:53:51] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:01:53:51] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:01:53:51] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:01:53:54] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🔴][FAIL][03/06/2024:01:53:54] -> [from:"token_session_controller"(🏷️IP:::1)] => [PrismaClientKnownRequestError: 
-Invalid `this.database.tokenSessions.upsert()` invocation in
-/Users/vugarsafarzada/Desktop/Files/Develop/My Projects/e-commercial-app/express-app/src/controllers/TokenSessionController.ts:60:62
-
-  57         created_for: createdFor
-  58     }
-  59 });
-→ 60 const result = await this.database.tokenSessions.upsert(
-The provided value for the column is too long for the column's type. Column: token]
-# [🔴][FAIL][03/06/2024:01:53:54] -> [from:"user_controller"] => [PrismaClientKnownRequestError: 
-Invalid `this.database.tokenSessions.upsert()` invocation in
-/Users/vugarsafarzada/Desktop/Files/Develop/My Projects/e-commercial-app/express-app/src/controllers/TokenSessionController.ts:60:62
-
-  57         created_for: createdFor
-  58     }
-  59 });
-→ 60 const result = await this.database.tokenSessions.upsert(
-The provided value for the column is too long for the column's type. Column: token]
-# [🔴][FAIL][03/06/2024:01:53:55] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 500) -- 50ms]
-# [🟢][DONE][03/06/2024:01:57:13] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:01:57:13] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:01:57:13] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:01:57:13] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:01:57:16] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:57:16] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:57:17] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 462ms]
-# [🟢][DONE][03/06/2024:01:57:25] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:57:25] -> [from:"token_session_controller"(🏷️IP:::1)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
-# [🟢][DONE][03/06/2024:01:57:25] -> [from:"-"(🏷️IP:::1)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 462ms]
-# [🟢][DONE][03/06/2024:01:58:35] -> [from:"user_controller"(🏷️IP:::1)] => [NEW LOGIN BY USER_ID: 1]
-# [🟢][DONE][03/06/2024:01:58:36] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 200) -- 233ms]
-# [🟢][DONE][03/06/2024:01:59:01] -> [from:"user_controller"(🏷️IP:::1)] => [NEW LOGIN BY USER_ID: 1]
-# [🟢][DONE][03/06/2024:01:59:01] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 200) -- 233ms]
-# [🔴][FAIL][03/06/2024:01:59:07] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:59:10] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🔴][FAIL][03/06/2024:01:59:15] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 403) -- 43ms]
-# [🟢][DONE][03/06/2024:01:59:24] -> [from:"user_controller"(🏷️IP:::1)] => [NEW LOGIN BY USER_ID: 1]
-# [🟢][DONE][03/06/2024:01:59:24] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 200) -- 233ms]
-# [🟢][DONE][03/06/2024:02:02:24] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:02:02:24] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:02:02:24] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:02:02:24] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:02:02:25] -> [from:"user_controller"(🏷️IP:::1)] => [NEW LOGIN BY "USER_ID: 1"]
-# [🟢][DONE][03/06/2024:02:02:26] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 200) -- 233ms]
-# [🟢][DONE][03/06/2024:02:02:31] -> [from:"user_controller"(🏷️IP:::1)] => [NEW LOGIN BY "USER_ID: 1"]
-# [🟢][DONE][03/06/2024:02:02:31] -> [from:"-"(🏷️IP:::1)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 200) -- 233ms]
-# [🟢][DONE][03/06/2024:02:03:09] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:02:03:09] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:02:03:09] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:02:03:09] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:02:03:10] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/login HTTP/1.1)>(status: 204) -- 0ms]
-# [🟢][DONE][03/06/2024:02:03:10] -> [from:"token_session_controller"(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 21)]
-# [🟢][DONE][03/06/2024:02:03:10] -> [from:"token_session_controller"(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 21)]
-# [🟢][DONE][03/06/2024:02:03:11] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 464ms]
-# [🟢][DONE][03/06/2024:02:03:11] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/auth HTTP/1.1)>(status: 204) -- 0ms]
-# [🟢][DONE][03/06/2024:02:03:11] -> [from:"user_controller"(🏷️IP:192.168.31.157)] => [NEW LOGIN BY "USER_ID: 21"]
-# [🟢][DONE][03/06/2024:02:03:11] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 200) -- 230ms]
-# [🟢][DONE][03/06/2024:02:06:03] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/logout HTTP/1.1)>(status: 204) -- 0ms]
-# [🟢][DONE][03/06/2024:02:06:03] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<GET /api/v1/user/logout HTTP/1.1)>(status: 200) -- 14ms]
-# [🟢][DONE][03/06/2024:02:06:08] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/login HTTP/1.1)>(status: 204) -- 0ms]
-# [🟢][DONE][03/06/2024:02:06:08] -> [from:"token_session_controller"(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 14)]
-# [🟢][DONE][03/06/2024:02:06:08] -> [from:"token_session_controller"(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 14)]
-# [🟢][DONE][03/06/2024:02:06:09] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 464ms]
-# [🟢][DONE][03/06/2024:02:06:09] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/auth HTTP/1.1)>(status: 204) -- 0ms]
-# [🟢][DONE][03/06/2024:02:06:09] -> [from:"user_controller"(🏷️IP:192.168.31.157)] => [NEW LOGIN BY "USER_ID: 14"]
-# [🟢][DONE][03/06/2024:02:06:09] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 200) -- 233ms]
-# [🟢][DONE][03/06/2024:02:07:33] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:02:07:33] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:02:07:33] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:02:07:33] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🔴][FAIL][03/06/2024:02:07:40] -> [from:"-"(🏷️IP:::1)] => [🔘<PUT /api/v1/user/preferred_lang HTTP/1.1)>(status: 417) -- 71ms]
-# [🔴][FAIL][03/06/2024:02:07:43] -> [from:"-"(🏷️IP:::1)] => [🔘<PUT /api/v1/user/preferred_lang HTTP/1.1)>(status: 417) -- 71ms]
-# [🔴][FAIL][03/06/2024:02:07:45] -> [from:"-"(🏷️IP:::1)] => [🔘<PUT /api/v1/user/preferred_lang HTTP/1.1)>(status: 417) -- 71ms]
-# [🟢][DONE][03/06/2024:02:09:11] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:02:09:11] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:02:09:11] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:02:09:11] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🔴][FAIL][03/06/2024:02:09:16] -> [from:"-"(🏷️IP:::1)] => [🔘<PUT /api/v1/user/preferred_lang HTTP/1.1)>(status: -) -- -ms]
-# [🟢][DONE][03/06/2024:02:09:34] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:02:09:34] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:02:09:34] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:02:09:34] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🔴][FAIL][03/06/2024:02:09:35] -> [from:"-"(🏷️IP:::1)] => [🔘<PUT /api/v1/user/preferred_lang HTTP/1.1)>(status: 417) -- 71ms]
-# [🔴][FAIL][03/06/2024:02:09:36] -> [from:"-"(🏷️IP:::1)] => [🔘<PUT /api/v1/user/preferred_lang HTTP/1.1)>(status: 417) -- 71ms]
-# [🔴][FAIL][03/06/2024:02:09:39] -> [from:"-"(🏷️IP:::1)] => [🔘<PUT /api/v1/user/preferred_lang HTTP/1.1)>(status: 417) -- 71ms]
-# [🟢][DONE][03/06/2024:02:09:48] -> [from:"node"] => [Express app running on ::5501]
-# [🟢][DONE][03/06/2024:02:09:48] -> [from:"prisma"] => [Prisma successfully connected]
-# [🟢][DONE][03/06/2024:02:09:48] -> [from:"prisma"] => [Database started!]
-# [🟢][DONE][03/06/2024:02:09:48] -> [from:"prisma"] => [All expired token sessions dropped]
-# [🟢][DONE][03/06/2024:02:31:30] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/auth HTTP/1.1)>(status: 204) -- 0ms]
-# [🟢][DONE][03/06/2024:02:31:30] -> [from:"user_controller"(🏷️IP:192.168.31.157)] => [NEW LOGIN BY "USER_ID: 14"]
-# [🟢][DONE][03/06/2024:02:31:30] -> [from:"http://localhost:5500/"(🏷️IP:192.168.31.157)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 200) -- 233ms]
+=||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||=
+||                                                          ||
+||   //////  //   //  /////   /////   /////  /////  /////   ||
+||   //       // //   //  //  //  //  //     //     //      ||
+||   //////    ///    /////   ////    /////  /////  /////   ||
+||   //       // //   //      // //   //        //     //   ||
+||   //////  //   //  //      //  //  /////  /////  /////   ||
+||                                                          ||
+=||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||=
+# [🟢][DONE][07/06/2024:16:25:38] -> [{"from":"node"}] => [Express app running on ::5501]
+# [🟢][DONE][07/06/2024:16:25:38] -> [{"from":"prisma"}] => [Prisma successfully connected]
+# [🟢][DONE][07/06/2024:16:25:38] -> [{"from":"prisma"}] => [Database started!]
+# [🟢][DONE][07/06/2024:16:25:38] -> [{"from":"prisma"}] => [All expired token sessions dropped]
+# [🟢][DONE][07/06/2024:17:04:45] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/login HTTP/1.1)>(status: 204) -- 0ms]
+# [🟢][DONE][07/06/2024:17:04:45] -> [{"file":"/controllers/TokenSessionController.ts"}(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 1)]
+# [🟢][DONE][07/06/2024:17:04:45] -> [{"file":"/controllers/TokenSessionController.ts"}(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 1)]
+# [🟢][DONE][07/06/2024:17:04:45] -> [{"file":"/controllers/UserController.ts"}(🏷️IP:192.168.31.157)] => [NEW LOGIN FROM USER_ID: 1]
+# [🟢][DONE][07/06/2024:17:04:46] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 462ms]
+# [🟢][DONE][07/06/2024:17:04:46] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/auth HTTP/1.1)>(status: 204) -- 0ms]
+# [🟢][DONE][07/06/2024:17:04:46] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 200) -- 221ms]
+# [🟢][DONE][07/06/2024:17:06:55] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/logout HTTP/1.1)>(status: 204) -- 0ms]
+# [🟢][DONE][07/06/2024:17:06:55] -> [{"file":"/controllers/UserController.ts"}] => [LOGOUT USER_ID:1]
+# [🟢][DONE][07/06/2024:17:06:55] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<GET /api/v1/user/logout HTTP/1.1)>(status: 304) -- -ms]
+# [🟢][DONE][07/06/2024:17:25:22] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/signup HTTP/1.1)>(status: 204) -- 0ms]
+# [🟢][DONE][07/06/2024:17:25:22] -> [{"file":"/controllers/TokenSessionController.ts"}(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "CONFIRM_EMAIL", (OWNER_ID: 49)]
+# [🟢][DONE][07/06/2024:17:25:24] -> [{"file":"/assets/helpers/emailHelper.ts"}] => ["Confirm Email":(<noreply@faynn.com> ✉️-> <nukif@mailinator.com>)]
+# [🟢][DONE][07/06/2024:17:25:24] -> [{"file":"/controllers/UserController.ts"}(🏷️IP:192.168.31.157)] => [NEW USER REGISTERED, USER_ID: 49]
+# [🟢][DONE][07/06/2024:17:25:25] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/signup HTTP/1.1)>(status: 201) -- 78ms]
+# [🟢][DONE][07/06/2024:17:26:36] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/signup HTTP/1.1)>(status: 204) -- 0ms]
+# [🟢][DONE][07/06/2024:17:26:36] -> [{"file":"/controllers/TokenSessionController.ts"}(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "CONFIRM_EMAIL", (OWNER_ID: 50)]
+# [🟢][DONE][07/06/2024:17:26:38] -> [{"file":"/assets/helpers/emailHelper.ts"}] => ["Confirm Email":(<noreply@faynn.com> ✉️-> <fumyvexiku@mailinator.com>)]
+# [🟢][DONE][07/06/2024:17:26:38] -> [{"file":"/controllers/UserController.ts"}(🏷️IP:192.168.31.157)] => [NEW USER REGISTERED, USER_ID: 50]
+# [🟢][DONE][07/06/2024:17:26:38] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/signup HTTP/1.1)>(status: 201) -- 78ms]
+# [🟢][DONE][07/06/2024:17:32:36] -> [{"from":"node"}] => [Express app running on ::5501]
+# [🟢][DONE][07/06/2024:17:32:36] -> [{"from":"prisma"}] => [Prisma successfully connected]
+# [🟢][DONE][07/06/2024:17:32:36] -> [{"from":"prisma"}] => [Database started!]
+# [🟢][DONE][07/06/2024:17:32:36] -> [{"from":"prisma"}] => [All expired token sessions dropped]
+# [🟢][DONE][07/06/2024:17:33:24] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/signup HTTP/1.1)>(status: 204) -- 0ms]
+# [🟢][DONE][07/06/2024:17:33:25] -> [{"file":"/controllers/TokenSessionController.ts"}(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "CONFIRM_EMAIL", (OWNER_ID: 51)]
+# [🟢][DONE][07/06/2024:17:33:26] -> [{"file":"/assets/helpers/emailHelper.ts"}] => ["Confirm Email":(<noreply@faynn.com> ✉️-> <vuqarsfrzad@gmail.com>)]
+# [🟢][DONE][07/06/2024:17:33:26] -> [{"file":"/controllers/UserController.ts"}(🏷️IP:192.168.31.157)] => [NEW USER REGISTERED, USER_ID: 51]
+# [🟢][DONE][07/06/2024:17:33:27] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/signup HTTP/1.1)>(status: 201) -- 78ms]
+# [🟢][DONE][07/06/2024:17:39:46] -> [{"from":"node"}] => [Express app running on ::5501]
+# [🟢][DONE][07/06/2024:17:39:46] -> [{"from":"prisma"}] => [Prisma successfully connected]
+# [🟢][DONE][07/06/2024:17:39:46] -> [{"from":"prisma"}] => [Database started!]
+# [🟢][DONE][07/06/2024:17:39:46] -> [{"from":"prisma"}] => [All expired token sessions dropped]
+# [🟢][DONE][07/06/2024:17:41:48] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/signup HTTP/1.1)>(status: 204) -- 0ms]
+# [🟢][DONE][07/06/2024:17:41:48] -> [{"file":"/controllers/TokenSessionController.ts"}(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "CONFIRM_EMAIL", (OWNER_ID: 52)]
+# [🟢][DONE][07/06/2024:17:41:50] -> [{"file":"/assets/helpers/emailHelper.ts"}] => ["Confirm Email":(<noreply@faynn.com> ✉️-> <vuqarsfrzad@gmail.com>)]
+# [🟢][DONE][07/06/2024:17:41:50] -> [{"file":"/controllers/UserController.ts"}(🏷️IP:192.168.31.157)] => [NEW USER REGISTERED, USER_ID: 52]
+# [🟢][DONE][07/06/2024:17:41:51] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/signup HTTP/1.1)>(status: 201) -- 78ms]
+# [🟢][DONE][07/06/2024:18:03:32] -> [{"from":"node"}] => [Express app running on ::5501]
+# [🟢][DONE][07/06/2024:18:03:32] -> [{"from":"prisma"}] => [Prisma successfully connected]
+# [🟢][DONE][07/06/2024:18:03:32] -> [{"from":"prisma"}] => [Database started!]
+# [🟢][DONE][07/06/2024:18:03:32] -> [{"from":"prisma"}] => [All expired token sessions dropped]
+# [🟢][DONE][07/06/2024:18:04:12] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/login HTTP/1.1)>(status: 204) -- 0ms]
+# [🟢][DONE][07/06/2024:18:04:12] -> [{"file":"/controllers/TokenSessionController.ts"}(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "ACCESS_TOKEN", (OWNER_ID: 52)]
+# [🟢][DONE][07/06/2024:18:04:12] -> [{"file":"/controllers/TokenSessionController.ts"}(🏷️IP:192.168.31.157)] => [NEW TOKEN SESSION CREATED FOR "REFRESH_TOKEN", (OWNER_ID: 52)]
+# [🟢][DONE][07/06/2024:18:04:12] -> [{"file":"/controllers/UserController.ts"}(🏷️IP:192.168.31.157)] => [NEW LOGIN FROM USER_ID: 52]
+# [🟢][DONE][07/06/2024:18:04:13] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<POST /api/v1/user/login HTTP/1.1)>(status: 200) -- 464ms]
+# [🟢][DONE][07/06/2024:18:04:13] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/auth HTTP/1.1)>(status: 204) -- 0ms]
+# [🟢][DONE][07/06/2024:18:04:14] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 200) -- 218ms]
+# [🟢][DONE][07/06/2024:18:04:54] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<OPTIONS /api/v1/user/auth HTTP/1.1)>(status: 204) -- 0ms]
+# [🟢][DONE][07/06/2024:18:04:55] -> [{"from":"morgan","url":"http://192.168.31.157:5500/"}(🏷️IP:192.168.31.157)] => [🔘<GET /api/v1/user/auth HTTP/1.1)>(status: 304) -- -ms]

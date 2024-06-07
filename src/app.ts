@@ -20,6 +20,8 @@ const app = express();
 // #AREA - view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
+//
+app.enable('trust proxy');
 
 // #AREA - Logging settings
 const customLogStream = { write: (message: string) => $loggedForMorgan(message)};
