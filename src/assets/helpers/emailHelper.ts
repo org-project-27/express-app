@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import {SMTPAddress} from "#assets/configurations/emailConfigs";
-import {default_email_lang} from "#assets/constants/language";
+import {available_email_langs, default_email_lang} from "#assets/constants/language";
 import {promises as fs} from 'fs';
 import path from 'path';
 import {
@@ -13,7 +13,9 @@ import {$logged} from "#helpers/generalHelpers";
 const appDomain: any = process.env.APP_BRAND_DOMAIN;
 const company_name: any = process.env.APP_BRAND_NAME;
 
-export function $sendEmail(to: string, lang: string = default_email_lang) {
+type LangType = typeof available_email_langs[number] | string;
+
+export function $sendEmail(to: string, lang: LangType = default_email_lang) {
     return {
         '@noreply': {
             async resetPassword(payload: ResetPasswordEmailPayloadTypes) {
@@ -106,7 +108,7 @@ export function $sendEmail(to: string, lang: string = default_email_lang) {
     }
 }
 
-export async function getEmailTemplate(template_name: string, values: any = {}, lang = default_email_lang){
+export async function getEmailTemplate(template_name: string, values: any = {}, lang: LangType = default_email_lang){
     values['logo_url'] = `${appDomain.toLowerCase()}/logo.png`
     let templateContent: any = '<strong> Null content </strong>';
     try {

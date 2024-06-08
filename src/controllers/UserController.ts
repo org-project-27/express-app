@@ -10,6 +10,7 @@ import TokenSession from "#controllers/TokenSessionController";
 import {$sendEmail} from "#helpers/emailHelper";
 import {JwtPayload} from "jsonwebtoken";
 import {available_email_langs} from "#assets/constants/language";
+import moment from "moment";
 
 class UserController extends Controller {
     constructor(request: Request, response: Response) {
@@ -52,13 +53,13 @@ class UserController extends Controller {
                     {},
                     this.response,
                     apiMessageKeys.INVALID_TOKEN,
-                    statusCodes.BAD_REQUEST
+                    statusCodes.FORBIDDEN
                 )
             }
             let details = user.UserDetails || {};
-            details = $filterObject(details, ['user_id'], { reverse: true })
+            details = $filterObject(details, ['user_id'], {reverse: true})
             user = $filterObject(user, ['fullname', 'email'])
-            $sendResponse.success({
+            return $sendResponse.success({
                 user_id,
                 details: {
                     ...user,
@@ -67,7 +68,7 @@ class UserController extends Controller {
             }, this.response, apiMessageKeys.DONE, statusCodes.OK);
         } catch (error: any) {
             $logged(
-                error,
+                `Auth progress failed:\n${error}`,
                 false,
                 {file: __filename.split('/src')[1]}
             );
@@ -78,12 +79,12 @@ class UserController extends Controller {
                 statusCodes.INTERNAL_SERVER_ERROR
             )
         }
-    }
+    };
     public logout = async () => {
         try {
             const sessions = new TokenSession(this.request, this.response);
             const authentication_result = JSON.parse(this.reqBody.authentication_result);
-            const { session } = authentication_result;
+            const {session} = authentication_result;
             await sessions.kill(session.id);
             await this.database.tokenSessions.findFirst({
                 where: {
@@ -91,17 +92,17 @@ class UserController extends Controller {
                     created_for: 'refresh_token'
                 }
             }).then(async (refreshTokenSession: any) => {
-                await sessions.kill(refreshTokenSession.id);
+                if (refreshTokenSession) await sessions.kill(refreshTokenSession.id);
             });
-            $sendResponse.success({}, this.response)
             $logged(
                 `LOGOUT USER_ID:${session.owner_id}`,
                 true,
                 {file: __filename.split('/src')[1]}
             );
+            return $sendResponse.success({}, this.response)
         } catch (error: any) {
             $logged(
-                error,
+                `Logout progress failed:\n${error}`,
                 false,
                 {file: __filename.split('/src')[1]}
             );
@@ -116,46 +117,51 @@ class UserController extends Controller {
     public confirmEmail = async () => {
         try {
             // step #1: Check required fields
-            const required_fields = validRequiredFields(['token'], this.request.query);
+            const required_fields = validRequiredFields(['token'], this.reqQuery);
             if (required_fields.length) {
                 return $sendResponse.failed(
-                    { required_fields },
+                    {required_fields},
                     this.response,
                     apiMessageKeys.SOMETHING_WENT_WRONG,
-                    statusCodes.EXPECTATION_FAILED
+                    statusCodes.BAD_REQUEST
                 );
-            } else if (this.request.query.token) {
+            } else if (this.reqQuery.token) {
                 const sessions = new TokenSession(this.request, this.response);
                 // step #2 Verify confirm email token
                 await sessions.verify(
                     'confirm_email',
-                    this.request.query.token
+                    this.reqQuery.token
                 ).then(async (result) => {
                     const payload: any = result.payload;
                     const session: any = result.session;
-                    // step #3: Check there is a email like that
+                    // step #3: Check there is an email like that
                     const emailExist = await this.database.users.findFirst({
                         where: {
-                            id: payload.user_id,
+                            id: session.owner_id,
                             email: payload.email
                         }
                     });
-                    if(emailExist){
+                    if (emailExist) {
                         await this.database.userDetails.update({
                             where: {
-                                user_id: payload.user_id,
+                                user_id: session.owner_id,
                             },
                             data: {
                                 email_registered: true
                             }
                         }).then(async () => {
                             await sessions.kill(session.id);
-                            $sendResponse.success({}, this.response)
+                            return $sendResponse.success(
+                                {},
+                                this.response,
+                                apiMessageKeys.DONE,
+                                statusCodes.ACCEPTED
+                            );
                         })
                     } else {
-                        throw new Error(`There is no register data ${payload.email} for user_id:${payload.user_id}`);
+                        throw new Error(`There is no register data ${payload.email} for user_id:${session.owner_id}`);
                     }
-                }).catch((error: any)=> {
+                }).catch((error: any) => {
                     $logged(
                         `Email confirming progress failed:\n${error}`,
                         false,
@@ -165,8 +171,8 @@ class UserController extends Controller {
                     return $sendResponse.failed(
                         {},
                         this.response,
-                        apiMessageKeys.INVALID_TOKEN,
-                        statusCodes.BAD_REQUEST
+                        apiMessageKeys.LINK_EXPIRED,
+                        statusCodes.FORBIDDEN
                     )
                 });
 
@@ -186,8 +192,74 @@ class UserController extends Controller {
             )
         }
     }
-    public checkResetPasswordToken = () => {
-        this.response.send('checkResetPasswordToken SERVICE')
+    public checkResetPasswordToken = async () => {
+        try {
+            // step #1: Check required fields
+            const required_fields = validRequiredFields(['token'], this.reqQuery);
+            if (required_fields.length) {
+                return $sendResponse.failed(
+                    {required_fields},
+                    this.response,
+                    apiMessageKeys.SOMETHING_WENT_WRONG,
+                    statusCodes.BAD_REQUEST
+                );
+            } else if (this.reqQuery.token) {
+                const sessions = new TokenSession(this.request, this.response);
+                // step #2 Verify reset password token
+                await sessions.verify(
+                    'reset_password',
+                    this.reqQuery.token
+                ).then(async (result) => {
+                    const payload: any = result.payload;
+                    const session: any = result.session;
+                    // step #3: Check there is a user like that
+                    const targetUser = await this.database.users.findFirst({
+                        where: {
+                            password: payload.key,
+                            id: session.owner_id
+                        }
+                    });
+                    if (targetUser) {
+                        return $sendResponse.success(
+                            {},
+                            this.response,
+                            apiMessageKeys.DONE,
+                            statusCodes.ACCEPTED
+                        );
+                    } else {
+                        //await sessions.kill(session.id);
+                        throw new Error(`There is no registered user with user_id:${session.owner_id}`);
+                    }
+                }).catch((error: any) => {
+                    $logged(
+                        `Verify reset password progress failed:\n${error}`,
+                        false,
+                        {file: __filename.split('/src')[1]}
+                    );
+
+                    return $sendResponse.failed(
+                        {},
+                        this.response,
+                        apiMessageKeys.LINK_EXPIRED,
+                        statusCodes.FORBIDDEN
+                    );
+                });
+
+            }
+        } catch (error: any) {
+            $logged(
+                `Check reset password progress failed:\n${error}`,
+                false,
+                {file: __filename.split('/src')[1]}
+            );
+
+            return $sendResponse.failed(
+                {},
+                this.response,
+                apiMessageKeys.SOMETHING_WENT_WRONG,
+                statusCodes.INTERNAL_SERVER_ERROR
+            )
+        }
     }
     public login = async () => {
         const payload = trimObjectValues(this.reqBody);
@@ -199,7 +271,7 @@ class UserController extends Controller {
                     {required_fields: validationRequiredFields},
                     this.response,
                     apiMessageKeys.USER_LOGIN_PROGRESS_FAILED,
-                    statusCodes.EXPECTATION_FAILED
+                    statusCodes.BAD_REQUEST
                 );
             }
 
@@ -209,7 +281,7 @@ class UserController extends Controller {
                     {},
                     this.response,
                     apiMessageKeys.INVALID_EMAIL,
-                    statusCodes.EXPECTATION_FAILED
+                    statusCodes.BAD_REQUEST
                 );
             }
 
@@ -219,7 +291,7 @@ class UserController extends Controller {
                     {},
                     this.response,
                     apiMessageKeys.INVALID_PASSWORD,
-                    statusCodes.UNPROCESSABLE_ENTITY
+                    statusCodes.BAD_REQUEST
                 );
             }
 
@@ -260,18 +332,19 @@ class UserController extends Controller {
                 true,
                 {file: __filename.split('/src')[1]},
                 this.request.ip);
-            $sendResponse.success(
+            return $sendResponse.success(
                 {
                     access_token: access_token.token,
                     refresh_token: refresh_token.token,
                     expires_in: access_token.expired_in
                 },
                 this.response,
-                apiMessageKeys.USER_SUCCESSFULLY_LOGIN
+                apiMessageKeys.USER_SUCCESSFULLY_LOGIN,
+                statusCodes.OK
             );
         } catch (error: any) {
             $logged(
-                error,
+                `Login progress failed:\n${error}`,
                 false,
                 {file: __filename.split('/src')[1]}
             );
@@ -294,7 +367,7 @@ class UserController extends Controller {
                     {required_fields: validationRequiredFields},
                     this.response,
                     apiMessageKeys.USER_REGISTRATION_FAILED,
-                    statusCodes.EXPECTATION_FAILED
+                    statusCodes.BAD_REQUEST
                 );
             }
 
@@ -304,15 +377,15 @@ class UserController extends Controller {
                     {},
                     this.response,
                     apiMessageKeys.INVALID_EMAIL,
-                    statusCodes.EXPECTATION_FAILED
+                    statusCodes.BAD_REQUEST
                 );
             }
 
             // step #3: Check is email already exist
             const emailExist = await this.database.users.findFirst({
-                    where: {
-                        email: payload.email
-                    }
+                where: {
+                    email: payload.email
+                }
             });
 
             if (emailExist) {
@@ -320,7 +393,7 @@ class UserController extends Controller {
                     {},
                     this.response,
                     apiMessageKeys.EMAIL_IS_EXIST,
-                    statusCodes.UNPROCESSABLE_ENTITY
+                    statusCodes.CONFLICT
                 );
             }
 
@@ -330,7 +403,7 @@ class UserController extends Controller {
                     {},
                     this.response,
                     apiMessageKeys.INVALID_PASSWORD,
-                    statusCodes.UNPROCESSABLE_ENTITY
+                    statusCodes.BAD_REQUEST
                 );
             }
 
@@ -340,7 +413,7 @@ class UserController extends Controller {
                     {},
                     this.response,
                     apiMessageKeys.INVALID_FULLNAME,
-                    statusCodes.UNPROCESSABLE_ENTITY
+                    statusCodes.BAD_REQUEST
                 );
             }
 
@@ -362,11 +435,10 @@ class UserController extends Controller {
                     }
                 }
             }).then(async (result) => {
-                const { token} = await sessions.create(
+                const {token} = await sessions.create(
                     result.id,
                     'confirm_email',
                     {
-                        user_id: result.id,
                         email: result.email
                     });
 
@@ -405,7 +477,7 @@ class UserController extends Controller {
                     this.response,
                     apiMessageKeys.USER_REGISTRATION_FAILED,
                     statusCodes.INTERNAL_SERVER_ERROR
-                )
+                );
             })
 
         } catch (error: any) {
@@ -426,32 +498,226 @@ class UserController extends Controller {
     public refreshToken = () => {
         this.response.send('refreshToken SERVICE')
     }
-    public forgotPassword = () => {
-        this.response.send('forgotPassword SERVICE')
+    public forgotPassword = async () => {
+        try {
+            // step #1: Check required field
+            const required_fields = validRequiredFields(['email'], this.reqBody);
+            if (required_fields.length) {
+                return $sendResponse.failed(
+                    {required_fields},
+                    this.response,
+                    apiMessageKeys.SOMETHING_WENT_WRONG,
+                    statusCodes.BAD_REQUEST
+                );
+            }
+            // step #2: Validate email string
+            if (!validateEmail(this.reqBody.email)) {
+                return $sendResponse.failed(
+                    {required_fields},
+                    this.response,
+                    apiMessageKeys.INVALID_EMAIL,
+                    statusCodes.BAD_REQUEST
+                );
+            }
+            // step #3: Check email is exist on db
+            const emailExist: any = await this.database.users.findFirst({
+                where: {
+                    email: this.reqBody.email
+                },
+                include: {
+                    UserDetails: true
+                }
+            });
+            if (!emailExist || !emailExist.UserDetails) {
+                return $sendResponse.success(
+                    {},
+                    this.response,
+                    apiMessageKeys.PASSWORD_RESET_LINK_WILL_SENT,
+                    statusCodes.OK
+                );
+            }
+
+            // step #4: Creat and send confirm link
+            const sessions = new TokenSession(this.request, this.response);
+            const {token} = await sessions.create(
+                emailExist.id,
+                'reset_password',
+                {
+                    key: emailExist.password
+                }
+            );
+            const appDomain: any = process.env.APP_BRAND_DOMAIN;
+            const reset_link = `www.${appDomain.toLowerCase()}/reset_password?token=${token}`;
+
+            await $sendEmail(this.reqBody.email, emailExist.UserDetails.preferred_lang)["@noreply"].resetPassword({
+                reset_link,
+                reset_link_life_hour: TokenSession.tokenLifeHours.reset_password,
+                full_name: emailExist.fullname,
+            }).then(() => {
+                $logged(
+                    `Reset password request for user_id: ${emailExist.id}`,
+                    true,
+                    {file: __filename.split('/src')[1]},
+                    this.request.ip
+                );
+                return $sendResponse.success(
+                    {},
+                    this.response,
+                    apiMessageKeys.PASSWORD_RESET_LINK_WILL_SENT,
+                    statusCodes.OK
+                );
+            }).catch((error: any) => {
+                throw error;
+            })
+        } catch (error: any) {
+            $logged(
+                `Forgot password progress failed:\n${error}`,
+                false,
+                {file: __filename.split('/src')[1]}
+            );
+            return $sendResponse.failed(
+                {},
+                this.response,
+                apiMessageKeys.SOMETHING_WENT_WRONG,
+                statusCodes.INTERNAL_SERVER_ERROR
+            )
+        }
     }
-    public resetPassword = () => {
-        this.response.send('resetPassword SERVICE')
+    public resetPassword = async () => {
+        try {
+            // step #1: Check required fields
+            const required_fields = validRequiredFields(['new_password', 'token'], this.reqBody);
+            if (required_fields.length) {
+                return $sendResponse.failed(
+                    {required_fields},
+                    this.response,
+                    apiMessageKeys.SOMETHING_WENT_WRONG,
+                    statusCodes.BAD_REQUEST
+                );
+            }
+            console.log('new_password', this.reqBody.new_password)
+            // step #2: Validate password strength
+            if (validatePasswordStrength(this.reqBody.new_password) < 2) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.INVALID_PASSWORD,
+                    statusCodes.BAD_REQUEST
+                );
+            }
+
+            const sessions = new TokenSession(this.request, this.response);
+            // step #3 Verify reset password token
+            await sessions.verify(
+                'reset_password',
+                this.reqBody.token
+            ).then(async (result) => {
+                const payload: any = result.payload;
+                const session: any = result.session;
+                // step #3: Check there is a user like that
+                const targetUser: any = await this.database.users.findFirst({
+                    where: {
+                        password: payload.key,
+                        id: session.owner_id
+                    },
+                    include: {
+                        UserDetails: true
+                    }
+                });
+                if (targetUser) {
+                    // this is make the link is one time reachable link
+                    const hash_password = await bcrypt.hash(
+                        this.reqBody.new_password,
+                        Number(process.env.HASH_LIMIT) || 10
+                    );
+                    await this.database.users.update({
+                        where: {
+                            id: targetUser.id
+                        },
+                        data: {
+                            password: hash_password
+                        }
+                    }).then(async () => {
+                        $logged(
+                            `Password changed for user_id: ${targetUser.id}`,
+                            true,
+                            {file: __filename.split('/src')[1]},
+                            this.request.ip
+                        );
+                        await $sendEmail(targetUser.email, targetUser.UserDetails.preferred_lang)["@noreply"].passwordUpdated({
+                            full_name: targetUser.fullname,
+                            update_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                            browser: this.request.useragent?.browser || '--',
+                            os: this.request.useragent?.os || '--',
+                            platform: this.request.useragent?.platform || '--',
+                        });
+                        return $sendResponse.success(
+                            {},
+                            this.response,
+                            apiMessageKeys.PASSWORD_SUCCESSFULLY_CHANGED,
+                            statusCodes.OK
+                        );
+                    }).catch((error: any) => {
+                        $logged(
+                            `Password changing failed for user_id: ${targetUser.id}.\n${error}`,
+                            false,
+                            {file: __filename.split('/src')[1]},
+                            this.request.ip
+                        );
+                        throw error;
+                    }).finally(async () => await sessions.kill(session.id));
+                } else {
+                    throw new Error(`User cannot find at this moment`);
+                }
+            }).catch((error: any) => {
+                $logged(
+                    `Verify reset password progress failed:\n${error}`,
+                    false,
+                    {file: __filename.split('/src')[1]}
+                );
+
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.LINK_EXPIRED,
+                    statusCodes.FORBIDDEN
+                );
+            });
+        } catch (error: any) {
+            $logged(
+                `Check reset password progress failed:\n${error}`,
+                false,
+                {file: __filename.split('/src')[1]}
+            );
+
+            return $sendResponse.failed(
+                {},
+                this.response,
+                apiMessageKeys.SOMETHING_WENT_WRONG,
+                statusCodes.INTERNAL_SERVER_ERROR
+            )
+        }
     }
     public setPreferredLang = async () => {
         try {
             const authentication_result = JSON.parse(this.reqBody.authentication_result);
             const {user_id} = authentication_result.payload;
             const required_fields = validRequiredFields(['lang'], this.reqBody);
-            if(required_fields.length){
+            if (required_fields.length) {
                 return $sendResponse.failed(
                     {required_fields},
                     this.response,
                     apiMessageKeys.SOMETHING_WENT_WRONG,
-                    statusCodes.EXPECTATION_FAILED
+                    statusCodes.BAD_REQUEST
                 )
             }
-            const { lang } = this.reqBody;
-            if(!available_email_langs.includes(lang)) {
+            const {lang} = this.reqBody;
+            if (!available_email_langs.includes(lang)) {
                 return $sendResponse.failed(
                     {},
                     this.response,
                     apiMessageKeys.SOMETHING_WENT_WRONG,
-                    statusCodes.EXPECTATION_FAILED
+                    statusCodes.BAD_REQUEST
                 )
             }
 
@@ -464,11 +730,11 @@ class UserController extends Controller {
                 }
             })
 
-            $sendResponse.success({}, this.response);
+            return $sendResponse.success({}, this.response);
 
         } catch (error: any) {
             $logged(
-                error,
+                `Set preferred language progress failed:\n${error}`,
                 false,
                 {file: __filename.split('/src')[1]}
             );

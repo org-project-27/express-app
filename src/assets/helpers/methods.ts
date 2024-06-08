@@ -16,7 +16,7 @@ export const $sendResponse = {
     other = {}
   ) => {
     const tId = setTimeout(() => {
-      via.status(statusCode).send({ success: true, message, data, ...other });
+      via.status(statusCode).send({ success: true, status: statusCode, message, data, ...other });
       clearTimeout(tId);
     }, responseDelay);
   },
@@ -27,7 +27,7 @@ export const $sendResponse = {
     statusCode = statusCodes.BAD_REQUEST,
   ) => {
     const tId = setTimeout(() => {
-      via.status(statusCode).send({ success: false, message, ...data});
+      via.status(statusCode).send({ success: false, status: statusCode, message, ...data});
       clearTimeout(tId);
     }, responseDelay);
   },

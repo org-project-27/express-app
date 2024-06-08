@@ -16,7 +16,7 @@ export class Controller {
     public response: Response;
 
     public reqBody: { authentication_result: Object } | any;
-    public reqQuery: Object;
+    public reqQuery: Object | any;
     public reqParams: Object
     public reqCookies: Object;
 

@@ -20,7 +20,7 @@ export default class TokenSessionController extends Controller {
         confirm_email: 1,
         access_token: 7,
         refresh_token: 30,
-        reset_password: 30,
+        reset_password: 1/24,
     }
     public static tokenLifeHours: TokenLifeTypes = {
         default: 24 * TokenSessionController.tokenLifeDays.default,
