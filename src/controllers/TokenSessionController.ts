@@ -125,7 +125,7 @@ export default class TokenSessionController extends Controller {
                 })
                 if (isDateExpired(session.expired_in)) {
                     await this.kill(session.id);
-                    throw new Error(`Invalid session token`.toUpperCase());
+                    throw new Error(`Session token expired`.toUpperCase());
                 } else if(!owner){
                     await this.kill(session.id);
                     throw new Error(`Cannot find owner of session`.toUpperCase());

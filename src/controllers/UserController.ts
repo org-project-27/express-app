@@ -595,7 +595,6 @@ class UserController extends Controller {
                     statusCodes.BAD_REQUEST
                 );
             }
-            console.log('new_password', this.reqBody.new_password)
             // step #2: Validate password strength
             if (validatePasswordStrength(this.reqBody.new_password) < 2) {
                 return $sendResponse.failed(
@@ -611,7 +610,8 @@ class UserController extends Controller {
             await sessions.verify(
                 'reset_password',
                 this.reqBody.token
-            ).then(async (result) => {
+            )
+                .then(async (result) => {
                 const payload: any = result.payload;
                 const session: any = result.session;
                 // step #3: Check there is a user like that
@@ -669,7 +669,8 @@ class UserController extends Controller {
                 } else {
                     throw new Error(`User cannot find at this moment`);
                 }
-            }).catch((error: any) => {
+            })
+                .catch((error: any) => {
                 $logged(
                     `Verify reset password progress failed:\n${error}`,
                     false,
