@@ -108,7 +108,7 @@ export default class TokenSessionController extends Controller {
             throw error;
         }
     }
-    public async verify(createdFor: CreatedForTypes, token: string) {
+    public async verify(createdFor: CreatedForTypes, token: string | any) {
         try {
             const {secretKeys, isDateExpired} = TokenSessionController;
             const session = await this.database.tokenSessions.findFirst({
@@ -118,14 +118,22 @@ export default class TokenSessionController extends Controller {
                 }
             });
             if (session) {
+                const owner = await this.database.users.findFirst({
+                    where: {
+                        id: session.owner_id,
+                    }
+                })
                 if (isDateExpired(session.expired_in)) {
                     await this.kill(session.id);
-                    return null;
+                    throw new Error(`Invalid session token`.toUpperCase());
+                } else if(!owner){
+                    await this.kill(session.id);
+                    throw new Error(`Cannot find owner of session`.toUpperCase());
                 }
                 const payload = jwt.verify(token, secretKeys[createdFor]);
                 return {session, payload};
             } else {
-                return null
+                throw new Error(`Invalid session token`.toUpperCase());
             }
         } catch (error: any) {
             $logged(

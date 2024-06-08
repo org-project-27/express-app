@@ -8,6 +8,8 @@ import bcrypt from "bcrypt";
 import statusCodes from "#assets/constants/statusCodes";
 import TokenSession from "#controllers/TokenSessionController";
 import {$sendEmail} from "#helpers/emailHelper";
+import {JwtPayload} from "jsonwebtoken";
+import {available_email_langs} from "#assets/constants/language";
 
 class UserController extends Controller {
     constructor(request: Request, response: Response) {
@@ -41,7 +43,7 @@ class UserController extends Controller {
             });
             if (!user) {
                 $logged(
-                    `Login progress failed by user_id: ${user_id}`.toUpperCase(),
+                    `Login progress failed by user_id: ${user_id}`,
                     false,
                     {file: __filename.split('/src')[1]},
                     this.request.ip
@@ -111,8 +113,78 @@ class UserController extends Controller {
             )
         }
     }
-    public confirmEmail = () => {
-        this.response.send('confirmEmail SERVICE')
+    public confirmEmail = async () => {
+        try {
+            // step #1: Check required fields
+            const required_fields = validRequiredFields(['token'], this.request.query);
+            if (required_fields.length) {
+                return $sendResponse.failed(
+                    { required_fields },
+                    this.response,
+                    apiMessageKeys.SOMETHING_WENT_WRONG,
+                    statusCodes.EXPECTATION_FAILED
+                );
+            } else if (this.request.query.token) {
+                const sessions = new TokenSession(this.request, this.response);
+                // step #2 Verify confirm email token
+                await sessions.verify(
+                    'confirm_email',
+                    this.request.query.token
+                ).then(async (result) => {
+                    const payload: any = result.payload;
+                    const session: any = result.session;
+                    // step #3: Check there is a email like that
+                    const emailExist = await this.database.users.findFirst({
+                        where: {
+                            id: payload.user_id,
+                            email: payload.email
+                        }
+                    });
+                    if(emailExist){
+                        await this.database.userDetails.update({
+                            where: {
+                                user_id: payload.user_id,
+                            },
+                            data: {
+                                email_registered: true
+                            }
+                        }).then(async () => {
+                            await sessions.kill(session.id);
+                            $sendResponse.success({}, this.response)
+                        })
+                    } else {
+                        throw new Error(`There is no register data ${payload.email} for user_id:${payload.user_id}`);
+                    }
+                }).catch((error: any)=> {
+                    $logged(
+                        `Email confirming progress failed:\n${error}`,
+                        false,
+                        {file: __filename.split('/src')[1]}
+                    );
+
+                    return $sendResponse.failed(
+                        {},
+                        this.response,
+                        apiMessageKeys.INVALID_TOKEN,
+                        statusCodes.BAD_REQUEST
+                    )
+                });
+
+            }
+        } catch (error: any) {
+            $logged(
+                `Email confirming progress failed:\n${error}`,
+                false,
+                {file: __filename.split('/src')[1]}
+            );
+
+            return $sendResponse.failed(
+                {},
+                this.response,
+                apiMessageKeys.SOMETHING_WENT_WRONG,
+                statusCodes.INTERNAL_SERVER_ERROR
+            )
+        }
     }
     public checkResetPasswordToken = () => {
         this.response.send('checkResetPasswordToken SERVICE')
@@ -308,7 +380,7 @@ class UserController extends Controller {
                 })
 
                 $logged(
-                    `New user registered, user_id: ${result.id}`.toUpperCase(),
+                    `New user registered, user_id: ${result.id}`,
                     true,
                     {file: __filename.split('/src')[1]},
                     this.request.ip
@@ -360,14 +432,51 @@ class UserController extends Controller {
     public resetPassword = () => {
         this.response.send('resetPassword SERVICE')
     }
-    public setPreferredLang = () => {
-        const required_fields = validRequiredFields(['lang'], this.reqBody);
-        if(required_fields.length){
+    public setPreferredLang = async () => {
+        try {
+            const authentication_result = JSON.parse(this.reqBody.authentication_result);
+            const {user_id} = authentication_result.payload;
+            const required_fields = validRequiredFields(['lang'], this.reqBody);
+            if(required_fields.length){
+                return $sendResponse.failed(
+                    {required_fields},
+                    this.response,
+                    apiMessageKeys.SOMETHING_WENT_WRONG,
+                    statusCodes.EXPECTATION_FAILED
+                )
+            }
+            const { lang } = this.reqBody;
+            if(!available_email_langs.includes(lang)) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.SOMETHING_WENT_WRONG,
+                    statusCodes.EXPECTATION_FAILED
+                )
+            }
+
+            await this.database.userDetails.update({
+                where: {
+                    user_id,
+                },
+                data: {
+                    preferred_lang: lang
+                }
+            })
+
+            $sendResponse.success({}, this.response);
+
+        } catch (error: any) {
+            $logged(
+                error,
+                false,
+                {file: __filename.split('/src')[1]}
+            );
             return $sendResponse.failed(
-                {required_fields},
+                {},
                 this.response,
                 apiMessageKeys.SOMETHING_WENT_WRONG,
-                statusCodes.EXPECTATION_FAILED
+                statusCodes.INTERNAL_SERVER_ERROR
             )
         }
     }
