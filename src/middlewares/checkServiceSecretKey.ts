@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import dotenv from "dotenv";
-import {$logged} from "#helpers/generalHelpers";
+import {$logged} from "#helpers/logHelpers";
 
 dotenv.config();
 export default (req: Request, res: Response, next: NextFunction) => {

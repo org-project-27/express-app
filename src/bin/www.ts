@@ -4,7 +4,7 @@ import http from 'http';
 import debug from "debug";
 
 import dotenv from 'dotenv';
-import {$logged, initLogs} from "#helpers/generalHelpers";
+import {$logged, initLogs} from "#helpers/logHelpers";
 import {ASCII_logo} from "#assets/constants/general";
 dotenv.config();
 console.clear();

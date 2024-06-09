@@ -14,7 +14,7 @@ import indexRouter from "#routes/index";
 import apiRouter from "#routes/api";
 import checkServiceSecretKey from "~/middlewares/checkServiceSecretKey";
 import checkDatabaseConnection from "~/db/checkDatabaseConnection";
-import {$loggedForMorgan} from "#helpers/generalHelpers";
+import {$loggedForMorgan} from "#helpers/logHelpers";
 dotenv.config();
 const app = express();
 // #AREA - view engine setup

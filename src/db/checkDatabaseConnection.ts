@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import {$logged} from "#helpers/generalHelpers";
+import {$logged} from "#helpers/logHelpers";
 import moment from "moment/moment";
 
 const prisma = new PrismaClient();
