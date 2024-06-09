@@ -4,22 +4,12 @@ import http from 'http';
 import debug from "debug";
 
 import dotenv from 'dotenv';
-import {$logged} from "#helpers/generalHelpers";
+import {$logged, initLogs} from "#helpers/generalHelpers";
+import {ASCII_logo} from "#assets/constants/general";
 dotenv.config();
 console.clear();
-const EXPRESS: string = `
-=||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||=
-||                                                          ||
-||   //////  //   //  /////   /////   /////  /////  /////   ||
-||   //       // //   //  //  //  //  //     //     //      ||
-||   //////    ///    /////   ////    /////  /////  /////   ||
-||   //       // //   //      // //   //        //     //   ||
-||   //////  //   //  //      //  //  /////  /////  /////   ||
-||                                                          ||
-=||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||= 
-`;
-
-console.log(EXPRESS)
+initLogs()
+console.log(ASCII_logo)
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 function normalizePort(val: any) {
