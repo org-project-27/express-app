@@ -92,13 +92,13 @@ export function $sendEmail(to: string, lang: LangType = default_email_lang) {
                     }, lang),
                 }).then(() => {
                     $logged(
-                        `📬 "Confirm Email": {from: "${SMTPAddress.noreply.email}", to: "${to}"}`,
+                        `📬 "Password Updated": {from: "${SMTPAddress.noreply.email}", to: "${to}"}`,
                         true,
                         {from: 'sendgrid', file: __filename.split('/src')[1]},
                     );
                 }).catch((error: any) => {
                     $logged(
-                        `📬 "Confirm Email": {from: "${SMTPAddress.noreply.email}", to: "${to}"}`,
+                        `📬 "Password Updated": {from: "${SMTPAddress.noreply.email}", to: "${to}"}`,
                         false,
                         {from: 'sendgrid', file: __filename.split('/src')[1]},
                     );

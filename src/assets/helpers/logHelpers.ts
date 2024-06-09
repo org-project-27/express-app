@@ -3,6 +3,8 @@ import moment from "moment/moment";
 import {isResponseSuccessful, readFromFile, writeToFile} from "#helpers/generalHelpers";
 import {PathLike} from "node:fs";
 import {sendLogToTelegramBot} from "#helpers/TelegramBot";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const initLogs = () => {
     let beforeLogs = readFromFile(currentLogFilePath) || '-';
@@ -47,7 +49,7 @@ export function $logged(
     const log = `# [${typeIcon}][${type}][${logDate}] -> [${JSON.stringify(trigger)}${ip ? '(🏷️IP:'+ ip + ')' : ''}] => [${action}]`;
     console.log(log);
     let botMessage = `${typeIcon} <b>#${type}</b> [${logDate}]\n\n`;
-    if(action){
+    if(!process.env.DEVELOPER_MODE){
         if(trigger.from) botMessage = botMessage + `📡 <b>From</b>: "${trigger.from}" \n`;
         if(trigger.url) botMessage = botMessage + `🔗 <b>URL</b>: <a href="${trigger.url}">${trigger.url}</a> \n`;
         if(trigger.file) botMessage = botMessage + `📁 <b>File</b>: ${trigger.file} \n`;
