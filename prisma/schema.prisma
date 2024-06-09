@@ -12,8 +12,8 @@ model TokenSessions {
   created_for String      @db.VarChar(55)
   token       String      @db.VarChar(255)
   payload     Json
-  expired_in  String      @db.VarChar(55)
   owner_id    Int
+  expired_in  String      @db.VarChar(55)
   UserDetails UserDetails @relation(fields: [owner_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "tokensessions_ibfk_1")
 
   @@index([owner_id], map: "owner_id")
@@ -31,9 +31,10 @@ model UserDetails {
 }
 
 model Users {
-  id          Int          @id @default(autoincrement())
-  fullname    String       @db.VarChar(255)
-  email       String       @unique(map: "email") @db.VarChar(255)
-  password    String       @db.VarChar(255)
-  UserDetails UserDetails?
+  id            Int          @id @default(autoincrement())
+  fullname      String       @db.VarChar(255)
+  email         String       @unique(map: "email") @db.VarChar(255)
+  password      String       @db.VarChar(255)
+  register_date String?      @db.VarChar(55)
+  UserDetails   UserDetails?
 }
