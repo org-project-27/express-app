@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import moment from "moment";
 import path from "path";
 import {PathLike} from "node:fs";
+import {ASCII_logo, currentLogFilePath, logsBasePath} from "#assets/constants/general";
 
 export function deepCopy(model: any){
     return JSON.parse(JSON.stringify(model));
@@ -57,7 +58,6 @@ export function $logged(
     ip: string | null = null
 ){
     const type = success ? 'DONE' : 'FAIL';
-    const logFilePath = 'src/bin/logs.txt';
 
     const date = {
         clock: moment().format('HH:mm:ss'),
@@ -70,9 +70,9 @@ export function $logged(
 
     const log = `# ${success ? '[🟢]' : '[🔴]'}[${type}][${logDate}] -> [${JSON.stringify(trigger)}${ip ? '(🏷️IP:'+ ip + ')' : ''}] => [${action}]`;
     console.log(log);
-    let beforeLogs = readFromFile(logFilePath);
+    let beforeLogs = readFromFile(currentLogFilePath);
     const logs = beforeLogs + "\n" + log;
-    writeToFile(logs, logFilePath)
+    writeToFile(logs, currentLogFilePath)
 }
 
 export function $loggedForMorgan(message: string){
@@ -108,4 +108,10 @@ export const $filterObject = (target: object, filters:Array<string>, options: an
         }
     });
     return filteredObject;
+}
+
+export const initLogs = () => {
+    let beforeLogs = readFromFile(currentLogFilePath) || '-';
+    writeToFile(beforeLogs, `${logsBasePath}/logs-${moment().format('DD.MM.YYYY:HH:mm:ss')}.logs.txt`);
+    writeToFile(ASCII_logo, currentLogFilePath);
 }
