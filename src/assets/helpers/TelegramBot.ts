@@ -1,8 +1,8 @@
 import axios from 'axios';
 import apiMessageKeys from "#assets/constants/apiMessageKeys";
 
-const TELEGRAM_BOT_TOKEN = '7269166380:AAFr8H6skaXyhkVZlzeZF33Pwgt4GNrYqls';
-const TELEGRAM_CHAT_ID = '771292914';
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 export async function sendLogToTelegramBot(message: string, parse_mode: 'html' | string | any) {
     try {

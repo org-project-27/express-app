@@ -75,6 +75,11 @@ Create a `.env` file in the root directory of your project and configure the nec
 DATABASE_URL="mysql://user:password@localhost:3306/mydatabase"
 JWT_SECRET="your_jwt_secret"
 ```
+## New Skills On The Version V3:
+- Writing clean code with an Object-Oriented Programming structure using TypeScript
+- Utilizing Prisma as a new ORM for database management
+- Implementing dynamic debugging and logging (enhanced with a Telegram bot)
+- Developing a security system for API services
 
 ## License
 
