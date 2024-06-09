@@ -1,33 +1,41 @@
-import sequelizeConfig from "../../configs/sequelizeConfig";
-async function RUN_SQL_QUERY(query='', database = sequelizeConfig){
+import sequelizeConfig from "@/sequelize/database";
+
+async function runSqlQuery(query = '', database = sequelizeConfig) {
     try {
-       return await database.query(query)
+        return await database.query(query);
     } catch (error) {
-        console.error(`SQL QUERY ERROR ${query} ErrorMessage::=>`, error);
+        console.error(`SQL QUERY ERROR: ${query} ErrorMessage::=>`, error);
     }
+}
+
+async function createTableIfNotExists(tableModel = { tableName: 'unnamed', tableFields: {} }, database = sequelizeConfig) {
+    const tableFields: string[] = [];
+    tableModel.tableName = tableModel.tableName.replace(' ', '_');
+
+    for (const [key, value] of Object.entries(tableModel.tableFields)) {
+        // @ts-ignore
+        const queryValue = `\`${key}\` ${value.queryValue}`;
+        tableFields.push(queryValue);
+        delete (value as any).queryValue; // Type assertion to bypass TS error for delete
+    }
+
+    const sql = `CREATE TABLE IF NOT EXISTS ${tableModel.tableName} (${tableFields.join(', ')})`;
+    return await runSqlQuery(sql, database);
+}
+
+async function dropTable(tableName = 'unnamed', database = sequelizeConfig) {
+    const sql = `DROP TABLE ${tableName}`;
+    return await runSqlQuery(sql, database);
+}
+
+async function showTables(database = sequelizeConfig) {
+    const sql = `SHOW TABLES`;
+    return await runSqlQuery(sql, database);
 }
 
 export default {
-    RUN_SQL_QUERY,
-    CREATE_TABLE_IF_NOT_EXISTS: async (tableModel = { tableName: 'unnamed', tableFields: {}}, database = sequelizeConfig) => {
-        const tablesFields = [];
-        tableModel.tableName = tableModel.tableName.replace(' ', '_');
-        Object.entries(tableModel.tableFields).forEach(([key, value]) => {
-            const queryValue = `\`${key}\` ${value.queryValue}`;
-            tablesFields.push(queryValue);
-            // #TODO: ATTENTION HERE:
-            delete value.queryValue;
-        })
-        const sql = `CREATE TABLE IF NOT EXISTS ${tableModel.tableName} (${tablesFields.join(',')})`;
-
-        return await RUN_SQL_QUERY(sql, database);
-    },
-    DROP_TABLE: async (tableName = 'unnamed', database = sequelizeConfig) => {
-        const sql = `DROP TABLE ${tableName}`;
-        return await RUN_SQL_QUERY(sql, database);
-    },
-    SHOW_TABLES: async (database = sequelizeConfig) => {
-        const sql = `SHOW TABLES`;
-        return await RUN_SQL_QUERY(sql, database);
-    }
-}
+    runSqlQuery,
+    createTableIfNotExists,
+    dropTable,
+    showTables,
+};

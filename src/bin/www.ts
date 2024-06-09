@@ -1,19 +1,27 @@
-import app from '../app';
+import 'module-alias/register';
+import app from '~/app';
 import http from 'http';
 import debug from "debug";
 
 import dotenv from 'dotenv';
+import {$logged} from "#helpers/generalHelpers";
 dotenv.config();
+console.clear();
+const EXPRESS: string = `
+=||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||=
+||                                                          ||
+||   //////  //   //  /////   /////   /////  /////  /////   ||
+||   //       // //   //  //  //  //  //     //     //      ||
+||   //////    ///    /////   ////    /////  /////  /////   ||
+||   //       // //   //      // //   //        //     //   ||
+||   //////  //   //  //      //  //  /////  /////  /////   ||
+||                                                          ||
+=||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||= 
+`;
 
+console.log(EXPRESS)
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
-
-const server = http.createServer(app);
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
 function normalizePort(val: any) {
   const port = parseInt(val, 10);
 
@@ -41,11 +49,13 @@ function onError(error: any) {
 
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+      let log_EACCES = bind + ' requires elevated privileges'
+      $logged(log_EACCES, false);
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+      let log_EADDRINUSE = bind + ' is already in use';
+      $logged(log_EADDRINUSE, false);
       process.exit(1);
       break;
     default:
@@ -59,4 +69,12 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  let log = `Express app running on ${addr.address}${addr.port}`
+  $logged(log, true);
 }
+
+const server = http.createServer(app);
+
+server.on('error', onError);
+server.on('listening', onListening);
+server.listen(port);

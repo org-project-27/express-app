@@ -1,19 +1,26 @@
 import 'dotenv/config';
-import {SMTPAddress} from "../../configs/emailConfigs";
+import {SMTPAddress} from "#assets/configurations/emailConfigs";
+import {available_email_langs, default_email_lang} from "#assets/constants/language";
 import {promises as fs} from 'fs';
-import {fileURLToPath} from 'url';
 import path from 'path';
-import {default_email_lang} from "../constants/language";
+import {
+    ConfirmEmailEmailPayloadTypes,
+    PasswordUpdatedEmailPayloadTypes,
+    ResetPasswordEmailPayloadTypes,
+} from "#types/sendEmail";
+import {$logged} from "#helpers/generalHelpers";
+
 const appDomain: any = process.env.APP_BRAND_DOMAIN;
 const company_name: any = process.env.APP_BRAND_NAME;
-export function $sendEmail(to: any, lang: any = default_email_lang) {
+
+type LangType = typeof available_email_langs[number] | string;
+
+export function $sendEmail(to: string, lang: LangType = default_email_lang) {
     return {
         '@noreply': {
-            async resetPassword(payload: any = { full_name: null, reset_link: null, reset_link_life_hour: null }) {
-                console.log(`[@] "Reset Password" email request: (${SMTPAddress.noreply.email} -> ${to})`);
-                // -----------------------------------------------------------------
+            async resetPassword(payload: ResetPasswordEmailPayloadTypes) {
                 const { full_name, reset_link, reset_link_life_hour } = payload;
-                const sentEmail = await SMTPAddress.noreply.transporter.sendMail({
+                return await SMTPAddress.noreply.transporter.sendMail({
                     from: `${appDomain} <${SMTPAddress.noreply.email}>`,
                     to,
                     subject: "Reset Password",
@@ -25,16 +32,23 @@ export function $sendEmail(to: any, lang: any = default_email_lang) {
                         reset_link_life_hour,
                         support_team_email: SMTPAddress.support.email,
                     }, lang),
+                }).then(() => {
+                    $logged(
+                        `"Reset Password":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        true,
+                        {file: __filename.split('/src')[1]},
+                    );
+                }).catch((error: any) => {
+                    $logged(
+                        `"Reset Password":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        false,
+                        {file: __filename.split('/src')[1]},
+                    );
                 });
-                console.log("Message sent: %s", sentEmail.response);
-                // -----------------------------------------------------------------
-                return sentEmail;
             },
-            async confirmEmail(payload: any = { full_name: null, confirm_link: null, confirm_link_life_hour: 24}) {
-                console.log(`[@] "Confirm Email" email request: (${SMTPAddress.noreply.email} -> ${to})`);
-                // -----------------------------------------------------------------
+            async confirmEmail(payload: ConfirmEmailEmailPayloadTypes) {
                 const { full_name, confirm_link, confirm_link_life_hour } = payload;
-                const sentEmail = await SMTPAddress.noreply.transporter.sendMail({
+                return await SMTPAddress.noreply.transporter.sendMail({
                     from: `${appDomain} <${SMTPAddress.noreply.email}>`,
                     to,
                     subject: "Confirm Email",
@@ -46,17 +60,23 @@ export function $sendEmail(to: any, lang: any = default_email_lang) {
                         confirm_link,
                         confirm_link_life_hour
                     }, lang),
+                }).then(() => {
+                    $logged(
+                        `"Confirm Email":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        true,
+                        {file: __filename.split('/src')[1]},
+                    );
+                }).catch((error: any) => {
+                    $logged(
+                        `"Confirm Email":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        false,
+                        {file: __filename.split('/src')[1]},
+                    );
                 });
-
-                console.log("Message sent: %s", sentEmail.response);
-                // -----------------------------------------------------------------
-                return sentEmail;
             },
-            async passwordUpdated( payload: any = { full_name: null, update_date: null, browser: null, os: null, platform: null  }){
-                console.log(`[@] "Password Updated" email request: (${SMTPAddress.noreply.email} -> ${to})`);
-                // -----------------------------------------------------------------
+            async passwordUpdated(payload: PasswordUpdatedEmailPayloadTypes){
                 const { full_name, update_date, browser, os, platform } = payload;
-                const sentEmail = await SMTPAddress.noreply.transporter.sendMail({
+                return await SMTPAddress.noreply.transporter.sendMail({
                     from: `${appDomain} <${SMTPAddress.noreply.email}>`,
                     to,
                     subject: "Password Updated",
@@ -70,17 +90,25 @@ export function $sendEmail(to: any, lang: any = default_email_lang) {
                         platform,
                         os,
                     }, lang),
+                }).then(() => {
+                    $logged(
+                        `"Confirm Email":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        true,
+                        {file: __filename.split('/src')[1]},
+                    );
+                }).catch((error: any) => {
+                    $logged(
+                        `"Confirm Email":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        false,
+                        {file: __filename.split('/src')[1]},
+                    );
                 });
-
-                console.log("Message sent: %s", sentEmail.response);
-                // -----------------------------------------------------------------
-                return sentEmail;
             }
         },
     }
 }
 
-export async function getEmailTemplate(template_name: any, values: any = {}, lang = default_email_lang){
+export async function getEmailTemplate(template_name: string, values: any = {}, lang: LangType = default_email_lang){
     values['logo_url'] = `${appDomain.toLowerCase()}/logo.png`
     let templateContent: any = '<strong> Null content </strong>';
     try {
