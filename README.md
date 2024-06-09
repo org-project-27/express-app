@@ -81,5 +81,4 @@ JWT_SECRET="your_jwt_secret"
 This project is licensed under the ISC License. See the [LICENSE](LICENSE) file for more information.
 
 ---
-
 By Vugar Safarzada
