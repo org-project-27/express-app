@@ -3,6 +3,7 @@ import moment from "moment";
 import path from "path";
 import {PathLike} from "node:fs";
 import {ASCII_logo, currentLogFilePath, logsBasePath} from "#assets/constants/general";
+import {sendLogToTelegramBot} from "#helpers/TelegramBot";
 
 export function deepCopy(model: any){
     return JSON.parse(JSON.stringify(model));
@@ -43,57 +44,6 @@ export function isResponseSuccessful(statusCode: number) {
     return statusCode ===304 || statusCode >= 200 && statusCode < 300;
 }
 
-type loggedTrigger = 'node' | 'prisma' | string;
-type loggedTriggerObjectType = {
-    from: loggedTrigger,
-    file: string | PathLike | any,
-    url: string | PathLike | any,
-} | object
-export function $logged(
-    action: string | undefined = undefined,
-    success: boolean,
-    trigger: loggedTriggerObjectType = {
-        from: "node",
-    },
-    ip: string | null = null
-){
-    const type = success ? 'DONE' : 'FAIL';
-
-    const date = {
-        clock: moment().format('HH:mm:ss'),
-        calendar: moment().format('DD/MM/YYYY')
-    }
-    if(ip && ip.includes('::ffff:')){
-        ip = ip.replace('::ffff:', '')
-    }
-    const logDate = `${date.calendar}:${date.clock}`;
-
-    const log = `# ${success ? '[🟢]' : '[🔴]'}[${type}][${logDate}] -> [${JSON.stringify(trigger)}${ip ? '(🏷️IP:'+ ip + ')' : ''}] => [${action}]`;
-    console.log(log);
-    let beforeLogs = readFromFile(currentLogFilePath);
-    const logs = beforeLogs + "\n" + log;
-    writeToFile(logs, currentLogFilePath)
-}
-
-export function $loggedForMorgan(message: string){
-    const morganData = message.split('"');
-    const IP = morganData[0] || '--';
-    const reqHeader = morganData[1] || '--';
-    const reqStatus = morganData[2] || '--';
-    const reqFromURL = morganData[3] || '--';
-    const reqBrowserInfo = morganData[5] || '--';
-
-    const reqMethod = reqHeader.split(" ")[0] || '--';
-    const reqToURL = reqHeader.split(" ")[1] || '--';
-    const reqHTTPType =  reqHeader.split(" ")[2] || '--';
-    const reqStatusCode = reqStatus.trim().split(' ')[0];
-    const resTime = reqStatus.trim().split(' ')[1] + 'ms';
-    const resSuccess = isResponseSuccessful(Number(reqStatusCode))
-    let reqFromIp = IP.split(" ")[0];
-    const action = `🔘<${reqHeader})>(status: ${reqStatusCode}) -- ${resTime}`
-    $logged(action, resSuccess, {from: 'morgan' , url: `${reqFromURL}`}, reqFromIp);
-}
-
 export const $filterObject = (target: object, filters:Array<string>, options: any = { reverse: false }) => {
     const filteredObject: any = {};
     Object.entries(target).forEach(([key, value]) => {
@@ -108,10 +58,4 @@ export const $filterObject = (target: object, filters:Array<string>, options: an
         }
     });
     return filteredObject;
-}
-
-export const initLogs = () => {
-    let beforeLogs = readFromFile(currentLogFilePath) || '-';
-    writeToFile(beforeLogs, `${logsBasePath}/logs-${moment().format('DD.MM.YYYY:HH:mm:ss')}.logs.txt`);
-    writeToFile(ASCII_logo, currentLogFilePath);
 }

@@ -3,8 +3,7 @@ import apiMessageKeys from "#assets/constants/apiMessageKeys";
 import {$sendResponse} from "#helpers/methods";
 import {NextFunction, Request, Response} from "express";
 import TokenSessionController from "#controllers/TokenSessionController";
-import {JwtPayload} from "jsonwebtoken";
-import {$logged} from "#helpers/generalHelpers";
+import {$logged} from "#helpers/logHelpers";
 
 export default async (req: Request, res: Response, next: NextFunction) => {
     try {

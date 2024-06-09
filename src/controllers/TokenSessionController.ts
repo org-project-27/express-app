@@ -1,6 +1,6 @@
 import {Controller} from "#types/controller";
 import jwt from "jsonwebtoken";
-import {$logged} from "#helpers/generalHelpers";
+import {$logged} from "#helpers/logHelpers";
 import moment from "moment";
 import {Request, Response} from "express";
 

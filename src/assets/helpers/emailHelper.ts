@@ -8,7 +8,7 @@ import {
     PasswordUpdatedEmailPayloadTypes,
     ResetPasswordEmailPayloadTypes,
 } from "#types/sendEmail";
-import {$logged} from "#helpers/generalHelpers";
+import {$logged} from "#helpers/logHelpers";
 
 const appDomain: any = process.env.APP_BRAND_DOMAIN;
 const company_name: any = process.env.APP_BRAND_NAME;
@@ -34,15 +34,15 @@ export function $sendEmail(to: string, lang: LangType = default_email_lang) {
                     }, lang),
                 }).then(() => {
                     $logged(
-                        `"Reset Password":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        `📬 "Reset Password": {from: "${SMTPAddress.noreply.email}", to: "${to}"}`,
                         true,
-                        {file: __filename.split('/src')[1]},
+                        {from: 'sendgrid', file: __filename.split('/src')[1]},
                     );
                 }).catch((error: any) => {
                     $logged(
-                        `"Reset Password":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        `📬 "Reset Password": {from: "${SMTPAddress.noreply.email}", to: "${to}"}`,
                         false,
-                        {file: __filename.split('/src')[1]},
+                        {from: 'sendgrid', file: __filename.split('/src')[1]},
                     );
                 });
             },
@@ -62,15 +62,15 @@ export function $sendEmail(to: string, lang: LangType = default_email_lang) {
                     }, lang),
                 }).then(() => {
                     $logged(
-                        `"Confirm Email":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        `📬 "Confirm Email": {from: "${SMTPAddress.noreply.email}", to: "${to}"}`,
                         true,
-                        {file: __filename.split('/src')[1]},
+                        {from: 'sendgrid', file: __filename.split('/src')[1]},
                     );
                 }).catch((error: any) => {
                     $logged(
-                        `"Confirm Email":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        `📬 "Confirm Email": {from: "${SMTPAddress.noreply.email}", to: "${to}"}`,
                         false,
-                        {file: __filename.split('/src')[1]},
+                        {from: 'sendgrid', file: __filename.split('/src')[1]},
                     );
                 });
             },
@@ -92,15 +92,15 @@ export function $sendEmail(to: string, lang: LangType = default_email_lang) {
                     }, lang),
                 }).then(() => {
                     $logged(
-                        `"Confirm Email":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        `📬 "Confirm Email": {from: "${SMTPAddress.noreply.email}", to: "${to}"}`,
                         true,
-                        {file: __filename.split('/src')[1]},
+                        {from: 'sendgrid', file: __filename.split('/src')[1]},
                     );
                 }).catch((error: any) => {
                     $logged(
-                        `"Confirm Email":(<${SMTPAddress.noreply.email}> ✉️-> <${to}>)`,
+                        `📬 "Confirm Email": {from: "${SMTPAddress.noreply.email}", to: "${to}"}`,
                         false,
-                        {file: __filename.split('/src')[1]},
+                        {from: 'sendgrid', file: __filename.split('/src')[1]},
                     );
                 });
             }
