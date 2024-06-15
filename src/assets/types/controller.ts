@@ -12,7 +12,7 @@ export type Methods = {
 }
 
 export class Controller {
-    public request: Request;
+    public request: Request | any;
     public response: Response;
 
     public reqBody: { authentication_result: Object } | any;

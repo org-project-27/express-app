@@ -15,8 +15,8 @@ export default async (req: Request, res: Response, next: NextFunction) => {
             return $sendResponse.failed(
                 {},
                 res,
-                apiMessageKeys.INVALID_TOKEN,
-                statusCodes.UNAUTHORIZED,
+                apiMessageKeys.AUTH_REQUIRED,
+                statusCodes.FORBIDDEN,
             );
         }
 
@@ -28,7 +28,7 @@ export default async (req: Request, res: Response, next: NextFunction) => {
                 {},
                 res,
                 apiMessageKeys.INVALID_TOKEN,
-                statusCodes.FORBIDDEN,
+                statusCodes.UNAUTHORIZED,
             );
         }
         req.body['authentication_result'] = JSON.stringify(result);
@@ -42,8 +42,8 @@ export default async (req: Request, res: Response, next: NextFunction) => {
         return $sendResponse.failed(
             {error},
             res,
-            apiMessageKeys.SOMETHING_WENT_WRONG,
-            statusCodes.INTERNAL_SERVER_ERROR
+            apiMessageKeys.INVALID_TOKEN,
+            statusCodes.UNAUTHORIZED
         )
     }
 };
