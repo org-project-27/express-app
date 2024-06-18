@@ -3,4 +3,3 @@
 sendgrid.env
 /src/bin/logs/
 /src/public/uploads/
-/cdn/*/*
