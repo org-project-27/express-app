@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Objects {
+  id         String   @id @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  name       String   @db.VarChar(255)
+  path       String   @db.VarChar(255)
+  type       String   @db.VarChar(255)
+  user_id    Int
+  Users      Users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "objects_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
 model TokenSessions {
   id          Int         @id @default(autoincrement())
   created_for String      @db.VarChar(55)
@@ -36,5 +49,6 @@ model Users {
   email         String       @unique(map: "email") @db.VarChar(255)
   password      String       @db.VarChar(255)
   register_date String?      @db.VarChar(55)
+  Objects       Objects[]
   UserDetails   UserDetails?
 }

@@ -10,7 +10,8 @@
     "db:pull": "npx prisma db pull",
     "db:deploy": "npx prisma migrate deploy",
     "db:migrate": "npx prisma migrate dev",
-    "db:reset": "npx prisma migrate reset"
+    "db:reset": "npx prisma migrate reset",
+    "db:studio": "npx prisma studio"
   },
   "keywords": [],
   "author": "Vugar Safarzada",
