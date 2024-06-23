@@ -12,8 +12,8 @@ model TokenSessions {
   created_for String      @db.VarChar(55)
   token       String      @db.VarChar(255)
   payload     Json
-  owner_id    Int
   expired_in  String      @db.VarChar(55)
+  owner_id    Int
   UserDetails UserDetails @relation(fields: [owner_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "tokensessions_ibfk_1")
 
   @@index([owner_id], map: "owner_id")
@@ -35,6 +35,57 @@ model Users {
   fullname      String       @db.VarChar(255)
   email         String       @unique(map: "email") @db.VarChar(255)
   password      String       @db.VarChar(255)
-  register_date String?      @db.VarChar(55)
+  register_date String       @db.VarChar(55)
+  Brands        Brands[]
   UserDetails   UserDetails?
+}
+
+model PlacesList {
+  place_id      Int            @id @default(autoincrement())
+  name          String         @db.VarChar(255)
+  type          Int
+  address       String         @db.VarChar(255)
+  city          String         @db.VarChar(100)
+  state         String         @db.VarChar(100)
+  zip_code      String         @db.VarChar(20)
+  phone         String         @db.VarChar(20)
+  website       String         @db.VarChar(255)
+  opening_hours String         @db.VarChar(255)
+  brand_id      Int
+  Brands        Brands         @relation(fields: [brand_id], references: [brand_id], onDelete: NoAction, onUpdate: NoAction, map: "placeslist_ibfk_1")
+  PlaceListType PlaceListType  @relation(fields: [type], references: [id])
+  ServicesList  ServicesList[]
+
+  @@index([brand_id], map: "brand_id")
+}
+
+model PlaceListType {
+  id    Int    @id @default(autoincrement())
+  value String @db.VarChar(255)
+  places PlacesList[]
+}
+
+model ServicesList {
+  service_id  Int        @id @default(autoincrement())
+  name        String     @db.VarChar(255)
+  description String?    @db.Text
+  price       Decimal?   @db.Decimal(10, 2)
+  category_id Int?
+  place_id    Int
+  PlacesList  PlacesList @relation(fields: [place_id], references: [place_id], onDelete: Cascade, onUpdate: NoAction, map: "serviceslist_ibfk_1")
+
+  @@index([place_id], map: "place_id")
+}
+
+model Brands {
+  brand_id   Int          @id @default(autoincrement())
+  name       String       @unique(map: "name") @db.VarChar(255)
+  logo       String?      @db.VarChar(255)
+  email      String       @unique(map: "email") @db.VarChar(255)
+  bio        String?      @db.Text
+  owner_id   Int
+  Users      Users        @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "brands_ibfk_1")
+  PlacesList PlacesList[]
+
+  @@index([owner_id], map: "owner_id")
 }

@@ -1,0 +1,4 @@
+export default [
+    { user_id: 1, phone: null, bio: null, email_registered: true, preferred_lang:'az-AZ'},
+    { user_id: 2, phone: null, bio: null, email_registered: true, preferred_lang:'az-AZ'},
+]

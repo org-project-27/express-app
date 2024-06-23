@@ -33,6 +33,7 @@ export function validatePhoneNumber(input: any) {
     var regex = /^(\+\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
     return (input.length >= 9 && input.length <= 15 && regex.test(input));
 }
+
 export function validatePasswordStrength(passwordString: any) {
     let strength = 0;
     if(passwordString){
@@ -60,4 +61,71 @@ export function validatePasswordStrength(passwordString: any) {
         }
     }
     return 0;
+}
+
+export function validatePlaceName(placeName: string | any){
+    if (!validateLength(placeName, { min: 2, max: 255 })) {
+        return false;
+    }
+    // #TODO: Add more validation
+    return true;
+}
+
+export function validateZipCode(zip_code: string | any) {
+    if (!validateLength(zip_code, { min: 3, max: 20 })) {
+        return false;
+    }
+    // #TODO: Add more validation
+    return true;
+}
+
+export function validateAddress(address: string | any) {
+    if (!validateLength(address, { min: 3, max: 255 })) {
+        return false;
+    }
+    // #TODO: Add more validation
+    return true;
+}
+
+export function validateCity(city: string | any) {
+    if (!validateLength(city, { min: 3, max: 100 })) {
+        return false;
+    }
+    // #TODO: Add more validation
+    return true;
+}
+
+export function validateState(state: string | any) {
+    if (!validateLength(state, { min: 3, max: 100 })) {
+        return false;
+    }
+    // #TODO: Add more validation
+    return true;
+}
+
+export function validatePhone(phone: string | any) {
+    if (!validateLength(phone, { min: 4, max: 20 })) {
+        return false;
+    }
+    // #TODO: Add more validation
+    return true;
+}
+
+export function validateOpeningHours(hours: string | any) {
+    const pattern = /^([01]\d|2[0-3]):([0-5]\d)-([01]\d|2[0-3]):([0-5]\d)$/;
+    const match = hours.match(pattern);
+    
+    if (!match) {
+        return false;
+    }
+
+    const startHour = parseInt(match[1], 10);
+    const startMinute = parseInt(match[2], 10);
+    const endHour = parseInt(match[3], 10);
+    const endMinute = parseInt(match[4], 10);
+
+    if (startHour < endHour || (startHour === endHour && startMinute < endMinute)) {
+        return true;
+    }
+    return false;
 }

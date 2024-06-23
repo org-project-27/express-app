@@ -20,7 +20,7 @@ const app = express();
 // #AREA - view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
-//
+// #AREA - for catching IP address
 app.enable('trust proxy');
 
 // #AREA - Logging settings

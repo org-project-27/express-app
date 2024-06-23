@@ -28,7 +28,7 @@ class UserController extends Controller {
         this.actions['POST']['/forgot_password'] = this.forgotPassword;
         this.actions['POST']['/reset_password'] = this.resetPassword;
 
-        this.actions['PUT']['/preferred_lang'] = this.setPreferredLang;
+        this.actions['PATCH']['/preferred_lang'] = this.setPreferredLang;
     }
 
     public auth = async () => {
@@ -40,7 +40,12 @@ class UserController extends Controller {
                     id: user_id
                 },
                 include: {
-                    UserDetails: true
+                    UserDetails: true,
+                    Brands: {
+                        include: {
+                            PlacesList: true
+                        }
+                    }
                 }
             });
             if (!user) {
@@ -58,14 +63,16 @@ class UserController extends Controller {
                 )
             }
             let details = user.UserDetails || {};
-            details = $filterObject(details, ['user_id'], {reverse: true})
-            user = $filterObject(user, ['fullname', 'email'])
+            let brands = user.Brands || {};
+            user = $filterObject(user, ['fullname', 'email']);
+            details = $filterObject(details, ['user_id'], { reverse: true });
             return $sendResponse.success({
                 user_id,
                 details: {
                     ...user,
                     ...details
-                }
+                },
+                brands
             }, this.response, apiMessageKeys.DONE, statusCodes.OK);
         } catch (error: any) {
             $logged(
@@ -428,6 +435,7 @@ class UserController extends Controller {
                     fullname: payload.fullname,
                     email: payload.email,
                     password: hash_password,
+                    register_date: moment().format('DD.MM.YYYY:HH:mm:ss'),
                     UserDetails: {
                         create: {
                             email_registered: false,
@@ -453,7 +461,7 @@ class UserController extends Controller {
                 })
 
                 $logged(
-                    `New user registered, user_id: ${result.id}`,
+                    `\n🛎️ New user registered {user_id: ${result.id}, email: "${result.email}"}\n`,
                     true,
                     {file: __filename.split('/src')[1]},
                     this.request.ip
@@ -468,7 +476,7 @@ class UserController extends Controller {
                 );
             }).catch((error: any) => {
                 $logged(
-                    `Registration progress failed:\n${error}`,
+                    `Registration progress failed {user_id: ${payload.id}, email: "${payload.email}"} \n${error}`,
                     false,
                     {file: __filename.split('/src')[1]}
                 );
@@ -477,7 +485,7 @@ class UserController extends Controller {
                     {},
                     this.response,
                     apiMessageKeys.USER_REGISTRATION_FAILED,
-                    statusCodes.INTERNAL_SERVER_ERROR
+                    statusCodes.BAD_REQUEST
                 );
             })
 
