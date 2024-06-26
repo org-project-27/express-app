@@ -1,8 +1,17 @@
+import { Url } from "node:url"
+
 export interface DefaultModelClass {
     model: any,
     methods: any,
     includes: any,
     requiredFields: any,
+}
+
+export type BrandsDataType = {
+    name: string,
+    website: string,
+    logo: string,
+    bio: string,
 }
 
 export type PlaceListDataType = {
@@ -13,6 +22,6 @@ export type PlaceListDataType = {
     state: string,
     zip_code: string,
     phone: string,
-    website: string,
+    email: string,
     opening_hours: string,
 }

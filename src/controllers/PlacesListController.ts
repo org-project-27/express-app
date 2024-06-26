@@ -1,11 +1,11 @@
 import { Controller } from "#types/controller";
 import { Request, Response } from "express";
 import { $callToAction, $sendResponse } from "#helpers/methods";
-import { validateAddress, validatePlaceName, validateCity, validateUrl, validateZipCode, validRequiredFields, validateLength, validateState, validatePhone, validateOpeningHours } from "#helpers/inputValidation";
+import { validateAddress, validatePlaceName, validateCity, validateZipCode, validRequiredFields, validateLength, validateState, validatePhone, validateOpeningHours, validateEmail } from "#helpers/inputValidation";
 import { $logged } from "#helpers/logHelpers";
 import apiMessageKeys from "#assets/constants/apiMessageKeys";
 import statusCodes from "#assets/constants/statusCodes";
-import { $filterObject, trimObjectValues } from "#helpers/generalHelpers";
+import { $filterObject, deepCopy, trimObjectValues } from "#helpers/generalHelpers";
 import { PlaceListDataType } from "~/assets/types/model";
 
 class PlacesListController extends Controller {
@@ -24,8 +24,13 @@ class PlacesListController extends Controller {
 
     public getPlaces = async () => {
         try {
-            let places = (await this.database.placesList.findMany({ include: { Brands: true } }))
-                .map(place => $filterObject(place, ['brand_id'], { reverse: true }));
+            const where = trimObjectValues(this.reqQuery);
+            const places = (await this.database.placesList.findMany({
+                include: { Brands: where['with_brand'] == "true" }
+            })).map(place => where['with_brand'] == "true" ?
+                $filterObject(place, ['brand_id'], { reverse: true }) :
+                place
+            );
             const count = await this.database.placesList.count();
             return $sendResponse.success({
                 places,
@@ -53,12 +58,24 @@ class PlacesListController extends Controller {
                             place_id: where['id']
                         },
                         include: {
-                            Brands: true
+                            Brands: where['with_brand'] == "true"
                         }
                     });
                     if (place) {
+                        if (where['with_brand'] == "true") {
+                            const result = deepCopy(place);
+                            result['brand'] = result['Brands'];
+                            delete result['Brands'];
+
+                            return $sendResponse.success(
+                                $filterObject(result, ['brand_id'], {reverse: true}),
+                                this.response,
+                                apiMessageKeys.DONE,
+                                statusCodes.OK
+                            );
+                        }
                         return $sendResponse.success(
-                            $filterObject(place, ['brand_id'], {reverse: true}),
+                            place,
                             this.response,
                             apiMessageKeys.DONE,
                             statusCodes.OK
@@ -77,7 +94,7 @@ class PlacesListController extends Controller {
         } catch (error: any) {
             $sendResponse.failed({ error }, this.response);
             $logged(
-                `Fetching place by progress failed:\n${error}`,
+                `Fetching place by id progress failed:\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload: this.reqQuery },
                 this.request.ip
@@ -89,6 +106,7 @@ class PlacesListController extends Controller {
         try {
             const data: PlaceListDataType = trimObjectValues(payload.data);
             const { user_id } = JSON.parse(this.reqBody.authentication_result).payload;
+            
             // #step 1: Check required fields
             const required_fields = validRequiredFields(
                 [
@@ -99,7 +117,7 @@ class PlacesListController extends Controller {
                     'state',
                     'zip_code',
                     'phone',
-                    'website',
+                    'email',
                     'opening_hours',
                 ],
                 data);
@@ -147,12 +165,11 @@ class PlacesListController extends Controller {
                     statusCodes.BAD_REQUEST
                 );
             }
-            if (!validateUrl(data.website) ||
-                !validateLength(data.website, { min: 3, max: 255 })) {
+            if (!validateEmail(data.email)) {
                 return $sendResponse.failed(
                     {},
                     this.response,
-                    apiMessageKeys.INVALID_WEB_SITE_URL,
+                    apiMessageKeys.INVALID_EMAIL,
                     statusCodes.BAD_REQUEST
                 );
             }
@@ -359,17 +376,16 @@ class PlacesListController extends Controller {
                 }   
                 editableFields.push('name');
             }
-            if (payload.website) {
-                if (!validateUrl(payload.website) ||
-                    !validateLength(payload.website, { min: 3, max: 255 })) {
+            if (payload.email) {
+                if (!validateEmail(payload.email)) {
                     return $sendResponse.failed(
                         {},
                         this.response,
-                        apiMessageKeys.INVALID_WEB_SITE_URL,
+                        apiMessageKeys.INVALID_EMAIL,
                         statusCodes.BAD_REQUEST
                     );
                 }
-                editableFields.push('website');
+                editableFields.push('email');
             }
             if (payload.zip_code) {
                 if (!validateZipCode(payload.zip_code)) {

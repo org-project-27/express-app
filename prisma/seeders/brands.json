@@ -1,0 +1,142 @@
+[
+    {
+        "brand_id": 1,
+        "owner_id": 1,
+        "name": "McDonald's",
+        "website": "mcdonalds.com",
+        "bio": "Global fast food chain known for its burgers and fries."
+    },
+    {
+        "brand_id": 2,
+        "owner_id": 1,
+        "name": "Burger King",
+        "website": "burgerking.com",
+        "bio": "Popular fast food chain famous for its Whopper burgers."
+    },
+    {
+        "brand_id": 3,
+        "owner_id": 1,
+        "name": "Subway",
+        "website": "subway.com",
+        "bio": "World's largest submarine sandwich chain."
+    },
+    {
+        "brand_id": 4,
+        "owner_id": 1,
+        "name": "Pizza Hut",
+        "website": "pizzahut.com",
+        "bio": "International restaurant chain specializing in pizza."
+    },
+    {
+        "brand_id": 5,
+        "owner_id": 1,
+        "name": "Starbucks",
+        "website": "starbucks.com",
+        "bio": "Famous coffeehouse chain known for its premium coffees."
+    },
+    {
+        "brand_id": 6,
+        "owner_id": 1,
+        "name": "Dunkin'",
+        "website": "dunkindonuts.com",
+        "bio": "Global chain known for its donuts and coffee."
+    },
+    {
+        "brand_id": 7,
+        "owner_id": 1,
+        "name": "Taco Bell",
+        "website": "tacobell.com",
+        "bio": "Popular fast food chain serving Mexican-inspired cuisine."
+    },
+    {
+        "brand_id": 8,
+        "owner_id": 1,
+        "name": "Wendy's",
+        "website": "wendys.com",
+        "bio": "American fast food chain known for its square burgers."
+    },
+    {
+        "brand_id": 9,
+        "owner_id": 1,
+        "name": "Domino's Pizza",
+        "website": "dominos.com",
+        "bio": "Leading pizza delivery and takeaway service."
+    },
+    {
+        "brand_id": 10,
+        "owner_id": 1,
+        "name": "Chick-fil-A",
+        "website": "chick-fil-a.com",
+        "bio": "Popular fast food chain specializing in chicken sandwiches."
+    },
+    {
+        "brand_id": 11,
+        "owner_id": 1,
+        "name": "Papa John's",
+        "website": "papajohns.com",
+        "bio": "Well-known pizza delivery chain."
+    },
+    {
+        "brand_id": 12,
+        "owner_id": 1,
+        "name": "Chipotle",
+        "website": "chipotle.com",
+        "bio": "Mexican grill known for its burritos and bowls."
+    },
+    {
+        "brand_id": 13,
+        "owner_id": 1,
+        "name": "Panera Bread",
+        "website": "panerabread.com",
+        "bio": "Bakery-café chain offering fresh bread, soups, and salads."
+    },
+    {
+        "brand_id": 14,
+        "owner_id": 1,
+        "name": "Krispy Kreme",
+        "website": "krispykreme.com",
+        "bio": "Renowned doughnut company."
+    },
+    {
+        "brand_id": 15,
+        "owner_id": 1,
+        "name": "Sbarro",
+        "website": "sbarro.com",
+        "bio": "Pizza chain serving New York-style pizzas."
+    },
+    {
+        "brand_id": 16,
+        "owner_id": 1,
+        "name": "Arby's",
+        "website": "arbys.com",
+        "bio": "Fast food chain known for its roast beef sandwiches."
+    },
+    {
+        "brand_id": 17,
+        "owner_id": 1,
+        "name": "Five Guys",
+        "website": "fiveguys.com",
+        "bio": "Popular burger and fries chain."
+    },
+    {
+        "brand_id": 18,
+        "owner_id": 1,
+        "name": "Jollibee",
+        "website": "jollibee.com",
+        "bio": "Fast food chain known for its fried chicken and Filipino dishes."
+    },
+    {
+        "brand_id": 19,
+        "owner_id": 1,
+        "name": "Tim Hortons",
+        "website": "timhortons.com",
+        "bio": "Canadian coffee and doughnut chain."
+    },
+    {
+        "brand_id": 20,
+        "owner_id": 1,
+        "name": "Shake Shack",
+        "website": "shakeshack.com",
+        "bio": "Modern burger chain known for its quality ingredients."
+    }
+]

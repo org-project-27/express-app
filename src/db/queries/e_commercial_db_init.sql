@@ -36,10 +36,10 @@ CREATE TABLE Brands (
     brand_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL UNIQUE,
     logo VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    website VARCHAR(255) NOT NULL,
     bio TEXT,
     owner_id INT NOT NULL,
-    FOREIGN KEY (owner_id) REFERENCES Users (id)
+    FOREIGN KEY (owner_id) REFERENCES Users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE PlaceListType (
@@ -56,11 +56,11 @@ CREATE TABLE PlacesList (
     state VARCHAR(100) NOT NULL,
     zip_code VARCHAR(20) NOT NULL,
     phone VARCHAR(20) NOT NULL,
-    website VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
     opening_hours VARCHAR(255) NOT NULL,
     brand_id INT NOT NULL,
-    FOREIGN KEY (brand_id) REFERENCES Brands (brand_id),
-    FOREIGN KEY (type) REFERENCES PlaceListType (id)
+    FOREIGN KEY (brand_id) REFERENCES Brands (brand_id) ON DELETE CASCADE,
+    FOREIGN KEY (type) REFERENCES PlaceListType (id) ON DELETE CASCADE
 );
 
 CREATE TABLE ServicesList (

@@ -129,3 +129,11 @@ export function validateOpeningHours(hours: string | any) {
     }
     return false;
 }
+
+export function validateBrandName(brandName: string | any){
+    if (!validateLength(brandName, { min: 2, max: 255 })) {
+        return false;
+    }
+    // #TODO: Add more validation
+    return true;
+}
