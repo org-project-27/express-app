@@ -30,6 +30,13 @@ async function main() {
       create: sessions
     }).then((result) => console.log(`[📦] "tokenSessions" seeds inserted: ${JSON.stringify(result)}`));
   }
+  for (const brand of brands) {
+    await prisma.brands.upsert({
+      where: { brand_id: brand.brand_id },
+      update: {},
+      create: brand
+    }).then((result) => console.log(`[📦] "brands" seeds inserted: ${JSON.stringify(result)}`));
+  }
   for (const type of placeListTypes) {
     await prisma.placeListType.upsert({
       where: { id: type.id },
@@ -43,13 +50,6 @@ async function main() {
       update: {},
       create: place.data,
     }).then((result) => console.log(`[📦] "placesList" seeds inserted: ${JSON.stringify(result)}`));
-  }
-  for (const brand of brands) {
-    await prisma.brands.upsert({
-      where: { brand_id: brand.brand_id },
-      update: {},
-      create: brand
-    }).then((result) => console.log(`[📦] "brands" seeds inserted: ${JSON.stringify(result)}`));
   }
 }
 
