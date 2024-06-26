@@ -1,0 +1,602 @@
+[
+    {
+        "data": {
+            "brand_id": 1,
+            "place_id": 1,
+            "name": "McDonald's Downtown",
+            "type": 3,
+            "address": "123 Main St",
+            "city": "Baku",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "1@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 2,
+            "place_id": 2,
+            "name": "Burger King Central",
+            "type": 4,
+            "address": "456 Elm St",
+            "city": "Baku",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "2@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 3,
+            "place_id": 3,
+            "name": "Subway Old Town",
+            "type": 2,
+            "address": "789 Oak St",
+            "city": "Ganja",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "3@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 4,
+            "place_id": 4,
+            "name": "Pizza Hut Riverside",
+            "type": 1,
+            "address": "101 Pine St",
+            "city": "Sumqayit",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "4@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 5,
+            "place_id": 5,
+            "name": "Starbucks Midtown",
+            "type": 5,
+            "address": "202 Birch St",
+            "city": "Mingachevir",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "5@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 6,
+            "place_id": 6,
+            "name": "Dunkin' West End",
+            "type": 2,
+            "address": "303 Cedar St",
+            "city": "Shaki",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "6@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 7,
+            "place_id": 7,
+            "name": "Taco Bell East Side",
+            "type": 3,
+            "address": "404 Maple St",
+            "city": "Baku",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "7@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 8,
+            "place_id": 8,
+            "name": "Wendy's Uptown",
+            "type": 1,
+            "address": "505 Walnut St",
+            "city": "Ganja",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "8@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 9,
+            "place_id": 9,
+            "name": "Domino's Pizza Harbor",
+            "type": 4,
+            "address": "606 Chestnut St",
+            "city": "Sumqayit",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "9@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 10,
+            "place_id": 10,
+            "name": "Chick-fil-A City Center",
+            "type": 5,
+            "address": "707 Ash St",
+            "city": "Mingachevir",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "10@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 11,
+            "place_id": 11,
+            "name": "Papa John's Broadway",
+            "type": 3,
+            "address": "808 Fir St",
+            "city": "Shaki",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "11@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 12,
+            "place_id": 12,
+            "name": "Chipotle Hillside",
+            "type": 4,
+            "address": "909 Spruce St",
+            "city": "Baku",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "12@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 13,
+            "place_id": 13,
+            "name": "Panera Bread Garden",
+            "type": 1,
+            "address": "1010 Poplar St",
+            "city": "Ganja",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "13@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 14,
+            "place_id": 14,
+            "name": "Krispy Kreme Lakeside",
+            "type": 2,
+            "address": "1111 Elm St",
+            "city": "Sumqayit",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "14@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 15,
+            "place_id": 15,
+            "name": "Sbarro Highlands",
+            "type": 3,
+            "address": "132 Maple St",
+            "city": "Mingachevir",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "15@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 16,
+            "place_id": 16,
+            "name": "Arby's Woodlands",
+            "type": 5,
+            "address": "1313 Oak St",
+            "city": "Shaki",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "16@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 17,
+            "place_id": 17,
+            "name": "Five Guys Downtown",
+            "type": 4,
+            "address": "1414 Cedar St",
+            "city": "Baku",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "17@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 18,
+            "place_id": 18,
+            "name": "Jollibee Central",
+            "type": 3,
+            "address": "1515 Birch St",
+            "city": "Ganja",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "18@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 19,
+            "place_id": 19,
+            "name": "Tim Hortons Uptown",
+            "type": 1,
+            "address": "1616 Pine St",
+            "city": "Sumqayit",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "19@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 20,
+            "place_id": 20,
+            "name": "Shake Shack East Side",
+            "type": 2,
+            "address": "1717 Fir St",
+            "city": "Mingachevir",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "20@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 1,
+            "place_id": 21,
+            "name": "McDonald's Airport",
+            "type": 5,
+            "address": "1720 Airport Blvd",
+            "city": "Baku",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "1@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 2,
+            "place_id": 22,
+            "name": "Burger King Mall",
+            "type": 3,
+            "address": "1821 Mall Rd",
+            "city": "Ganja",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "2@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 3,
+            "place_id": 23,
+            "name": "Subway Station",
+            "type": 2,
+            "address": "1922 Station St",
+            "city": "Sumqayit",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "3@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 4,
+            "place_id": 24,
+            "name": "Pizza Hut University",
+            "type": 4,
+            "address": "2023 University Ave",
+            "city": "Mingachevir",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "4@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 5,
+            "place_id": 25,
+            "name": "Starbucks Lakeshore",
+            "type": 1,
+            "address": "2124 Lakeshore Dr",
+            "city": "Shaki",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "5@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 6,
+            "place_id": 26,
+            "name": "Dunkin' Downtown",
+            "type": 2,
+            "address": "2225 Downtown St",
+            "city": "Baku",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "6@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 7,
+            "place_id": 27,
+            "name": "Taco Bell Suburbs",
+            "type": 3,
+            "address": "2326 Suburb Ln",
+            "city": "Ganja",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "7@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 8,
+            "place_id": 28,
+            "name": "Wendy's Industrial",
+            "type": 4,
+            "address": "2427 Industrial Rd",
+            "city": "Sumqayit",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "8@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 9,
+            "place_id": 29,
+            "name": "Domino's Pizza Seaside",
+            "type": 5,
+            "address": "2528 Seaside Blvd",
+            "city": "Mingachevir",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "9@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 10,
+            "place_id": 30,
+            "name": "Chick-fil-A Harbor",
+            "type": 1,
+            "address": "2629 Harbor St",
+            "city": "Shaki",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "10@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 11,
+            "place_id": 31,
+            "name": "Papa John's Promenade",
+            "type": 2,
+            "address": "2730 Promenade Ave",
+            "city": "Baku",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "11@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 12,
+            "place_id": 32,
+            "name": "Chipotle Highlands",
+            "type": 3,
+            "address": "2831 Highland Dr",
+            "city": "Ganja",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "12@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 13,
+            "place_id": 33,
+            "name": "Panera Bread Valley",
+            "type": 4,
+            "address": "2932 Valley Rd",
+            "city": "Sumqayit",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "13@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 14,
+            "place_id": 34,
+            "name": "Krispy Kreme Market",
+            "type": 5,
+            "address": "3033 Market St",
+            "city": "Mingachevir",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "14@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 15,
+            "place_id": 35,
+            "name": "Sbarro Plaza",
+            "type": 1,
+            "address": "3134 Plaza Blvd",
+            "city": "Shaki",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "15@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 16,
+            "place_id": 36,
+            "name": "Arby's Junction",
+            "type": 2,
+            "address": "3235 Junction Rd",
+            "city": "Baku",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "16@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 17,
+            "place_id": 37,
+            "name": "Five Guys Crossing",
+            "type": 3,
+            "address": "3336 Crossing Ave",
+            "city": "Ganja",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "17@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 18,
+            "place_id": 38,
+            "name": "Jollibee Midtown",
+            "type": 4,
+            "address": "3437 Midtown Blvd",
+            "city": "Sumqayit",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "18@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 19,
+            "place_id": 39,
+            "name": "Tim Hortons Marketplace",
+            "type": 5,
+            "address": "3538 Marketplace Dr",
+            "city": "Mingachevir",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "19@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    },
+    {
+        "data": {
+            "brand_id": 20,
+            "place_id": 40,
+            "name": "Shake Shack Downtown",
+            "type": 1,
+            "address": "3639 Downtown St",
+            "city": "Shaki",
+            "state": "Azerbaijan",
+            "zip_code": "AZ1089",
+            "phone": "+94611190428",
+            "email": "20@domain.com",
+            "opening_hours": "07:00-16:00"
+        }
+    }
+]

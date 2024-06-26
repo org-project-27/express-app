@@ -11,6 +11,7 @@
     "db:deploy": "npx prisma migrate deploy",
     "db:migrate": "npx prisma migrate dev",
     "db:reset": "npx prisma migrate reset",
+    "db:seed": "ts-node prisma/seed.ts",
     "db:studio": "npx prisma studio"
   },
   "keywords": [],
