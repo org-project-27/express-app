@@ -1,9 +1,4 @@
 import * as fs from "node:fs";
-import moment from "moment";
-import path from "path";
-import {PathLike} from "node:fs";
-import {ASCII_logo, currentLogFilePath, logsBasePath} from "#assets/constants/general";
-import {sendLogToTelegramBot} from "#helpers/TelegramBot";
 
 export function deepCopy(model: any){
     return JSON.parse(JSON.stringify(model));
@@ -44,7 +39,7 @@ export function isResponseSuccessful(statusCode: number) {
     return statusCode ===304 || statusCode >= 200 && statusCode < 300;
 }
 
-export const $filterObject = (target: object, filters:Array<string>, options: any = { reverse: false }) => {
+export const $filterObject = (target: object, filters:Array<string>, options: { reverse: boolean } = { reverse: false }) => {
     const filteredObject: any = {};
     Object.entries(target).forEach(([key, value]) => {
         if(options.reverse){

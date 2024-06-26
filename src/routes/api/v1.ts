@@ -1,4 +1,8 @@
 import express from 'express';
 import userRouter from '#routes/api/v1/user';
+import uploadRouter from "#routes/api/v1/upload";
 const router = express.Router();
-export default router.use('/user', userRouter);
+
+router.use('/user', userRouter);
+router.use('/upload', uploadRouter);
+export default router;
