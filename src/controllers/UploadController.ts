@@ -171,7 +171,6 @@ export function uploader(request: Request, response: Response, next: NextFunctio
             destination: function (req, file, cb) {
                 const { mimetype } = file;
                 const fileType = mimetype.split('/')[0];
-                console.log(fileType);
                 const category = ['image', 'video', 'audio'].includes(fileType) ? fileType : 'other';
                 const path = `cdn/${category}/`;
 
