@@ -15,40 +15,6 @@ class UploadController extends Controller {
         this.actions['PUT']['/update/:id'] = this.update;
         this.actions['DELETE']['/delete/:id'] = this.delete;
     }
-    public example = async () => {
-        try {
-            const object_id = this.reqBody.object_id;
-            const object = await this.database.objects.findUnique({
-                where: { id: object_id }
-            });
-
-            if (!object) {
-                $logged(`Object not found: ${object_id}`, false, { from: 'upload', object_id });
-                return $sendResponse.failed({}, this.response, apiMessageKeys.SOMETHING_WENT_WRONG, 500);
-            }
-
-            $sendResponse.success(
-                {
-                    filename: object.name,
-                    path: `http://localhost:5501/cdn/${object_id}`
-                },
-                this.response
-            );
-        } catch (error) {
-            $logged(
-                `Object uploading progress failed\n${error}`,
-                false,
-                { file: __filename.split('/src')[1], payload: this.reqBody },
-                this.request.ip
-            );
-            return $sendResponse.failed(
-                { error },
-                this.response,
-                apiMessageKeys.SOMETHING_WENT_WRONG,
-                statusCodes.INTERNAL_SERVER_ERROR
-            );
-        }
-    };
 
     public upload = async () => {
         try {
@@ -70,7 +36,7 @@ class UploadController extends Controller {
             $sendResponse.success(
                 {
                     filename: object.name,
-                    path: `http://localhost:5501/cdn/${object_id}`
+                    object_id
                 },
                 this.response
             );
@@ -133,7 +99,7 @@ class UploadController extends Controller {
             $sendResponse.success(
                 {
                     filename: newObject.name,
-                    path: `http://localhost:5501/cdn/${object_id}`
+                    object_id
                 },
                 this.response
             );

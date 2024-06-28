@@ -34,19 +34,6 @@ export const $callToAction = (controller: any) => {
             const { method, path } = req;
             if (actions[method] && actions[method][path]) {
                 actions[method][path]({ req, res, next });
-                // if (path.includes('/:')) {
-                //     let params: Record<string, any> = {};
-
-                //     path.split('/').forEach((p, i) => {
-                //         if (p.startsWith(':')) {
-                //             params[p.replace(':', '')] = req.params[i];
-                //         }
-                //     });
-
-                //     actions[method][path]({ req, res, next, params });
-                // } else {
-                //     actions[method][path]({ req, res, next });
-                // }
             } else {
                 let originPath = '';
                 let reqParams: Record<string, any> = {};
