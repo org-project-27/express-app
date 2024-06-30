@@ -39,7 +39,8 @@ class BrandController extends Controller {
                 `Fetching all brands progress failed:\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload: this.reqQuery },
-                this.request.ip
+                this.request.ip,
+                true
             );
         }
     }
@@ -82,7 +83,8 @@ class BrandController extends Controller {
                 `Fetching brand by id progress failed:\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload: this.reqQuery },
-                this.request.ip
+                this.request.ip,
+                true
             );
         }
     }
@@ -187,10 +189,11 @@ class BrandController extends Controller {
                     statusCodes.CREATED
                 );
                 $logged(
-                    `\n🛎️ New brand registered {user_id: ${user_id}, brand_id: ${result.brand_id}, name: "${data.name}"}\n`,
+                    `\n🛎️ NEW "BRAND" REGISTERED -> ${data.name}\n`,
                     true,
-                    { file: __filename.split('/src')[1] },
-                    this.request.ip
+                    { file: __filename.split('/src')[1], payload: {user_id: user_id, brand_id: result.brand_id, name: data.name}},
+                    this.request.ip,
+                    true
                 );
             }).catch((error: any) => {
                 throw error;
@@ -200,7 +203,8 @@ class BrandController extends Controller {
                 `Brand registration progress failed:\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload },
-                this.request.ip
+                this.request.ip,
+                true,
             );
 
             return $sendResponse.failed(
@@ -335,7 +339,8 @@ class BrandController extends Controller {
                 `Editing brand progress failed\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload },
-                this.request.ip
+                this.request.ip,
+                true
             );
             return $sendResponse.failed(
                 { error },
@@ -375,10 +380,11 @@ class BrandController extends Controller {
                     }
                 }).then(result => {
                     $logged(
-                        `\n🛎️ A brand deleted {brand_id: ${brand_id}, name: "${result.name}"}\n`,
+                        `\n🛎️ A brand deleted -> ${result.name}\n`,
                         true,
-                        { file: __filename.split('/src')[1], user_id },
-                        this.request.ip
+                        { file: __filename.split('/src')[1], user_id, brand_id: brand_id, name: result.name },
+                        this.request.ip,
+                        true
                     );
                     return $sendResponse.success(
                         {},
@@ -395,7 +401,8 @@ class BrandController extends Controller {
                 `Deleting brand progress failed:\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload: this.reqQuery },
-                this.request.ip
+                this.request.ip,
+                true
             );
         }
     }

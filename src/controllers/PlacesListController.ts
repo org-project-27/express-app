@@ -42,7 +42,8 @@ class PlacesListController extends Controller {
                 `Fetching all places progress failed:\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload: this.reqQuery },
-                this.request.ip
+                this.request.ip,
+                true
             );
         }
     };
@@ -97,7 +98,8 @@ class PlacesListController extends Controller {
                 `Fetching place by id progress failed:\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload: this.reqQuery },
-                this.request.ip
+                this.request.ip,
+                true
             );
         }
     };
@@ -146,7 +148,8 @@ class PlacesListController extends Controller {
                     `User not found -> {user_id: ${user_id}, brand_id: ${payload.brand_id}`,
                     false,
                     { file: __filename.split('/src')[1] },
-                    this.request.ip
+                    this.request.ip,
+                    true
                 );
                 return $sendResponse.failed(
                     {},
@@ -266,10 +269,11 @@ class PlacesListController extends Controller {
                     statusCodes.CREATED
                 );
                 $logged(
-                    `\n🛎️ New place registered {user_id: ${user_id}, place_id: ${result.place_id}, brand_id: ${payload.brand_id}, name: "${data.name}"}\n`,
+                    `\n🛎️ NEW "PLACE" REGISTERED -> ${data.name}\n`,
                     true,
-                    { file: __filename.split('/src')[1] },
-                    this.request.ip
+                    { file: __filename.split('/src')[1], payload: {user_id: user_id, place_id: result.place_id, brand_id: payload.brand_id, name: data.name }},
+                    this.request.ip,
+                    true
                 );
             }).catch((error: any) => {
                 throw error;
@@ -279,7 +283,8 @@ class PlacesListController extends Controller {
                 `Place registration progress failed:\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload },
-                this.request.ip
+                this.request.ip,
+                true
             );
 
             return $sendResponse.failed(
@@ -338,7 +343,8 @@ class PlacesListController extends Controller {
                     `User not found -> {user_id: ${user_id}, brand_id: ${targetPlace.brand_id}`,
                     false,
                     { file: __filename.split('/src')[1] },
-                    this.request.ip
+                    this.request.ip,
+                    true
                 );
                 return $sendResponse.failed(
                     { user, targetPlace },
@@ -489,7 +495,8 @@ class PlacesListController extends Controller {
                 `Editing place progress failed\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload },
-                this.request.ip
+                this.request.ip,
+                true
             );
             return $sendResponse.failed(
                 { error },
@@ -533,10 +540,11 @@ class PlacesListController extends Controller {
                                 where: { place_id: place.place_id }
                             })
                             $logged(
-                                `\n🛎️ A place deleted {user_id: ${user_id}, place_id: ${result.place_id}, brand_id: ${place.brand_id}, name: "${place.name}"}\n`,
+                                `\n🛎️ A place deleted -> ${place.name}\n`,
                                 true,
-                                { file: __filename.split('/src')[1] },
-                                this.request.ip
+                                { file: __filename.split('/src')[1], payload: {user_id: user_id, place_id: result.place_id, brand_id: place.brand_id, name: place.name} },
+                                this.request.ip,
+                                true
                             );
                             return $sendResponse.success(
                                 {},
@@ -566,7 +574,8 @@ class PlacesListController extends Controller {
                 `Deleting place progress failed:\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload: this.reqQuery },
-                this.request.ip
+                this.request.ip,
+                true
             );
         }
     };
