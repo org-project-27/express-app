@@ -576,7 +576,7 @@ class UserController extends Controller {
                 full_name: emailExist.fullname,
             }).then(() => {
                 $logged(
-                    `🔑 Reset password request`,
+                    `🔑 Reset password request for email -> ${this.reqBody.email}`,
                     true,
                     {file: __filename.split('/src')[1], user_id: emailExist.id, email: this.reqBody.email},
                     this.request.ip,
@@ -663,7 +663,7 @@ class UserController extends Controller {
                         }
                     }).then(async () => {
                         $logged(
-                            `🔐 Password changed`,
+                            `🔐 Password changed for -> email: ${targetUser.email}`,
                             true,
                             {file: __filename.split('/src')[1], user_id: targetUser.id},
                             this.request.ip,
