@@ -7,6 +7,7 @@ import { $callToAction, $sendResponse } from '#helpers/methods';
 import apiMessageKeys from '~/assets/constants/apiMessageKeys';
 import multer from 'multer';
 import statusCodes from '#assets/constants/statusCodes';
+import { validRequiredFields } from '~/assets/helpers/inputValidation';
 
 class UploadController extends Controller {
     constructor(request: Request, response: Response) {
@@ -19,6 +20,16 @@ class UploadController extends Controller {
     public upload = async () => {
         try {
             const object_id = this.reqBody.object_id;
+            if (!object_id) {
+                return $sendResponse.failed(
+                    {
+                        requiredField: ['file']
+                    },
+                    this.response,
+                    apiMessageKeys.SOMETHING_WENT_WRONG,
+                    statusCodes.INTERNAL_SERVER_ERROR
+                );
+            }
             const object = await this.database.objects.findUnique({
                 where: { id: object_id }
             });
@@ -35,7 +46,7 @@ class UploadController extends Controller {
 
             $sendResponse.success(
                 {
-                    filename: object.name,
+                    filename: object.name,      
                     object_id
                 },
                 this.response
