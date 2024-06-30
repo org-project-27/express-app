@@ -183,6 +183,8 @@ export default class TokenSessionController extends Controller {
                 'All expired sessions dropped'.toUpperCase(),
                 true,
                 {file: __filename.split('/src')[1]},
+                this.request.ip,
+                true
             )
         } catch (error: any) {
             $logged(

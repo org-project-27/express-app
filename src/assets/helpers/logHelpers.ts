@@ -33,7 +33,8 @@ export function $logged(
     trigger: loggedTriggerObjectType = {
         from: "node",
     },
-    ip: string | null = null
+    ip: string | null = null,
+    sendToTgBot: boolean = false,
 ) {
     const type = success ? 'DONE' : 'FAIL';
     const typeIcon = success ? '🟢' : '🔴';
@@ -48,24 +49,26 @@ export function $logged(
 
     const log = `# [${typeIcon}][${type}][${logDate}] -> [${JSON.stringify(trigger)}${ip ? '(🏷️IP:' + ip + ')' : ''}] => [${action}]`;
     console.log(log);
-    let botMessage = `${typeIcon} <b>#${type}</b> [${logDate}]\n\n`;
-    if (!process.env.DEVELOPER_MODE) {
-        if (trigger.from) botMessage = botMessage + `📡 <b>From</b>: "${trigger.from}" \n`;
-        if (trigger.url) botMessage = botMessage + `🔗 <b>URL</b>: <a href="${trigger.url}">${trigger.url}</a> \n`;
-        if (trigger.file) botMessage = botMessage + `📁 <b>File</b>: ${trigger.file} \n`;
-        if (ip) botMessage = botMessage + `🌐 <b>IP Address</b>: ${ip} \n`;
-        if (trigger.from !== 'morgan') {
-            botMessage = botMessage + `<pre><code class="language-Message">${action}</code></pre>`
-        } else {
-            botMessage = botMessage + `<pre><code class="class-json">{\n`
-            if (trigger.request.path) botMessage = botMessage + '"Path": ' + `"${trigger.request.path}"`
-            if (trigger.request.method) botMessage = botMessage + '\n"Method": ' + `"${trigger.request.method}"`
-            if (trigger.request.protocol) botMessage = botMessage + '\n"Protocol": ' + `"${trigger.request.protocol}"`
-            if (trigger.request.status) botMessage = botMessage + '\n"Status": ' + `${trigger.request.status}`
-            if (trigger.request.time) botMessage = botMessage + '\n"Time": ' + `"${trigger.request.time}"`
-            botMessage = botMessage + `\n}</code></pre>`
+    if(sendToTgBot){
+        let botMessage = `${typeIcon} <b>#${type}</b> [${logDate}]\n\n`;
+        if (!process.env.DEVELOPER_MODE) {
+            if (trigger.from) botMessage = botMessage + `📡 <b>From</b>: "${trigger.from}" \n`;
+            if (trigger.url) botMessage = botMessage + `🔗 <b>URL</b>: <a href="${trigger.url}">${trigger.url}</a> \n`;
+            if (trigger.file) botMessage = botMessage + `📁 <b>File</b>: ${trigger.file} \n`;
+            if (ip) botMessage = botMessage + `🌐 <b>IP Address</b>: ${ip} \n`;
+            if (trigger.from !== 'morgan') {
+                botMessage = botMessage + `<pre><code class="language-Message">${action}</code></pre>`
+            } else {
+                botMessage = botMessage + `<pre><code class="class-json">{\n`
+                if (trigger.request.path) botMessage = botMessage + '"Path": ' + `"${trigger.request.path}"`
+                if (trigger.request.method) botMessage = botMessage + '\n"Method": ' + `"${trigger.request.method}"`
+                if (trigger.request.protocol) botMessage = botMessage + '\n"Protocol": ' + `"${trigger.request.protocol}"`
+                if (trigger.request.status) botMessage = botMessage + '\n"Status": ' + `${trigger.request.status}`
+                if (trigger.request.time) botMessage = botMessage + '\n"Time": ' + `"${trigger.request.time}"`
+                botMessage = botMessage + `\n}</code></pre>`
+            }
+            sendLogToTelegramBot(botMessage, 'html');
         }
-        sendLogToTelegramBot(botMessage, 'html');
     }
 
     let beforeLogs = readFromFile(currentLogFilePath);

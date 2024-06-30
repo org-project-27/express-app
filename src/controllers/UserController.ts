@@ -50,10 +50,11 @@ class UserController extends Controller {
             });
             if (!user) {
                 $logged(
-                    `Login progress failed by user_id: ${user_id}`,
+                    `Auth progress failed`,
                     false,
-                    {file: __filename.split('/src')[1]},
-                    this.request.ip
+                    {file: __filename.split('/src')[1], user_id},
+                    this.request.ip,
+                    true
                 );
                 return $sendResponse.failed(
                     {},
@@ -78,7 +79,9 @@ class UserController extends Controller {
             $logged(
                 `Auth progress failed:\n${error}`,
                 false,
-                {file: __filename.split('/src')[1]}
+                {file: __filename.split('/src')[1]},
+                this.request.ip,
+                true
             );
             return $sendResponse.failed(
                 {},
@@ -103,9 +106,10 @@ class UserController extends Controller {
                 if (refreshTokenSession) await sessions.kill(refreshTokenSession.id);
             });
             $logged(
-                `LOGOUT USER_ID:${session.owner_id}`,
+                `LOGOUT REQUEST`,
                 true,
-                {file: __filename.split('/src')[1]}
+                {file: __filename.split('/src')[1], user_id: session.owner_id},
+                this.request.ip, true
             );
             return $sendResponse.success({}, this.response)
         } catch (error: any) {
@@ -173,7 +177,8 @@ class UserController extends Controller {
                     $logged(
                         `Email confirming progress failed:\n${error}`,
                         false,
-                        {file: __filename.split('/src')[1]}
+                        {file: __filename.split('/src')[1]},
+                        this.request.ip, true
                     );
 
                     return $sendResponse.failed(
@@ -189,7 +194,8 @@ class UserController extends Controller {
             $logged(
                 `Email confirming progress failed:\n${error}`,
                 false,
-                {file: __filename.split('/src')[1]}
+                {file: __filename.split('/src')[1]},
+                this.request.ip, true
             );
 
             return $sendResponse.failed(
@@ -339,7 +345,7 @@ class UserController extends Controller {
             $logged(`NEW LOGIN FROM USER_ID: ${existUser.id}`,
                 true,
                 {file: __filename.split('/src')[1]},
-                this.request.ip);
+                this.request.ip, true);
             return $sendResponse.success(
                 {
                     access_token: access_token.token,
@@ -354,7 +360,8 @@ class UserController extends Controller {
             $logged(
                 `Login progress failed:\n${error}`,
                 false,
-                {file: __filename.split('/src')[1]}
+                {file: __filename.split('/src')[1]},
+                this.request.ip, true
             );
             return $sendResponse.failed(
                 {},
@@ -461,10 +468,11 @@ class UserController extends Controller {
                 })
 
                 $logged(
-                    `\n🛎️ New user registered {user_id: ${result.id}, email: "${result.email}"}\n`,
+                    `\n🛎️ NEW USER REGISTERED "${result.fullname} | ${result.email}"\n`,
                     true,
-                    {file: __filename.split('/src')[1]},
-                    this.request.ip
+                    {file: __filename.split('/src')[1], user_id: result.id},
+                    this.request.ip,
+                    true
                 );
 
                 return $sendResponse.success(
@@ -476,9 +484,11 @@ class UserController extends Controller {
                 );
             }).catch((error: any) => {
                 $logged(
-                    `Registration progress failed {user_id: ${payload.id}, email: "${payload.email}"} \n${error}`,
+                    `Registration progress failed\n${error}`,
                     false,
-                    {file: __filename.split('/src')[1]}
+                    {file: __filename.split('/src')[1], payload},
+                    this.request.ip,
+                    true
                 );
 
                 return $sendResponse.failed(
@@ -493,7 +503,9 @@ class UserController extends Controller {
             $logged(
                 `Registration progress failed:\n${error}`,
                 false,
-                {file: __filename.split('/src')[1]}
+                {file: __filename.split('/src')[1]},
+                this.request.ip,
+                true
             );
 
             return $sendResponse.failed(
@@ -564,10 +576,11 @@ class UserController extends Controller {
                 full_name: emailExist.fullname,
             }).then(() => {
                 $logged(
-                    `Reset password request for user_id: ${emailExist.id}`,
+                    `🔑 Reset password request`,
                     true,
-                    {file: __filename.split('/src')[1]},
-                    this.request.ip
+                    {file: __filename.split('/src')[1], user_id: emailExist.id, email: this.reqBody.email},
+                    this.request.ip,
+                    true
                 );
                 return $sendResponse.success(
                     {},
@@ -582,7 +595,9 @@ class UserController extends Controller {
             $logged(
                 `Forgot password progress failed:\n${error}`,
                 false,
-                {file: __filename.split('/src')[1]}
+                {file: __filename.split('/src')[1]},
+                this.request.ip,
+                true
             );
             return $sendResponse.failed(
                 {},
@@ -648,10 +663,11 @@ class UserController extends Controller {
                         }
                     }).then(async () => {
                         $logged(
-                            `Password changed for user_id: ${targetUser.id}`,
+                            `🔐 Password changed`,
                             true,
-                            {file: __filename.split('/src')[1]},
-                            this.request.ip
+                            {file: __filename.split('/src')[1], user_id: targetUser.id},
+                            this.request.ip,
+                            true
                         );
                         await $sendEmail(targetUser.email, targetUser.UserDetails.preferred_lang)["@noreply"].passwordUpdated({
                             full_name: targetUser.fullname,
@@ -668,22 +684,23 @@ class UserController extends Controller {
                         );
                     }).catch((error: any) => {
                         $logged(
-                            `Password changing failed for user_id: ${targetUser.id}.\n${error}`,
+                            `Password changing failed for.\n${error}`,
                             false,
-                            {file: __filename.split('/src')[1]},
-                            this.request.ip
+                            {file: __filename.split('/src')[1], user_id: targetUser.id},
+                            this.request.ip,
+                            true
                         );
                         throw error;
                     }).finally(async () => await sessions.kill(session.id));
                 } else {
-                    throw new Error(`User cannot find at this moment`);
+                    throw new Error(`User cannot found at this moment`);
                 }
             })
                 .catch((error: any) => {
                 $logged(
                     `Verify reset password progress failed:\n${error}`,
                     false,
-                    {file: __filename.split('/src')[1]}
+                    {file: __filename.split('/src')[1]},
                 );
 
                 return $sendResponse.failed(
