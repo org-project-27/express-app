@@ -57,7 +57,7 @@ export function $logged(
             if (trigger.file) botMessage = botMessage + `📁 <b>File</b>: ${trigger.file} \n`;
             if (ip) botMessage = botMessage + `🌐 <b>IP Address</b>: ${ip} \n`;
             if (trigger.from !== 'morgan') {
-                botMessage = botMessage + `<pre><code class="language-Message">${action}</code></pre>`
+                botMessage = botMessage + `<pre><code class="language-Message">${action}\n${JSON.stringify(trigger)}</code></pre>`
             } else {
                 botMessage = botMessage + `<pre><code class="class-json">{\n`
                 if (trigger.request.path) botMessage = botMessage + '"Path": ' + `"${trigger.request.path}"`
