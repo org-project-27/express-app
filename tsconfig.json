@@ -18,6 +18,9 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "allowSyntheticDefaultImports": true,
+    "lib": [
+      "ES2021"
+    ],
     "paths": {
       "~": [
         "./src"
