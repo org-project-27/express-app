@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export function validateUrl(URL = '') {
     const urlPattern = /^(?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9]+(?:\.[a-zA-Z]{2,})+(?:\/.*)?$/;
     return urlPattern.test(URL);
@@ -24,12 +26,33 @@ export function validateLength(input = '', limit = {min: 2, max: 255}) {
     return null;
 }
 
+export function validateBirthday(input = '') {
+    if (input) {
+        if(!moment(input, 'YYYY-MM-DD').isValid()) return false;
+
+        const ageLimit = 18;
+        const [inputYear, inputMonth, inputDay] = input.split('-').map(Number);
+        const [year, month, day] = moment().format('YYYY-MM-DD').split('-').map(Number);
+
+        if (year - inputYear < ageLimit) {
+            return false;
+        } else if(month < inputMonth) {
+            return false;
+        } else if(day < inputDay) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    return false
+}
+
 export function validRequiredFields(requiredFields: string[], payload: any){
     return (requiredFields.filter((item: string) => !payload[item]));
 }
 
-export function validatePhoneNumber(input: any) {
-    input = input.replaceAll(' ', '');
+export function validatePhoneNumber(input: string) {
+    input = input.replaceAll(' ', '').trim();
     var regex = /^(\+\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
     return (input.length >= 9 && input.length <= 15 && regex.test(input));
 }

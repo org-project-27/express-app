@@ -1,7 +1,7 @@
 import {$callToAction, $sendResponse} from "#helpers/methods";
 import {Request, Response} from 'express';
 import {Controller} from "#types/controller";
-import {validateEmail, validateFullName, validatePasswordStrength, validRequiredFields} from "#helpers/inputValidation";
+import {validateBirthday, validateEmail, validateFullName, validatePasswordStrength, validatePhoneNumber, validRequiredFields} from "#helpers/inputValidation";
 import apiMessageKeys from "#assets/constants/apiMessageKeys";
 import {trimObjectValues, $filterObject} from "#helpers/generalHelpers";
 import {$logged} from "#helpers/logHelpers";
@@ -12,6 +12,7 @@ import {$sendEmail} from "#helpers/emailHelper";
 import {JwtPayload} from "jsonwebtoken";
 import {available_email_langs} from "#assets/constants/language";
 import moment from "moment";
+import { where } from "sequelize";
 
 class UserController extends Controller {
     constructor(request: Request, response: Response) {
@@ -29,6 +30,7 @@ class UserController extends Controller {
         this.actions['POST']['/reset_password'] = this.resetPassword;
 
         this.actions['PATCH']['/preferred_lang'] = this.setPreferredLang;
+        this.actions['PATCH']['/edit'] = this.editUser;
     }
 
     public auth = async () => {
@@ -771,6 +773,78 @@ class UserController extends Controller {
                 apiMessageKeys.SOMETHING_WENT_WRONG,
                 statusCodes.INTERNAL_SERVER_ERROR
             )
+        }
+    }
+
+    public editUser = async () => {
+        try {
+            const authentication_result = JSON.parse(this.reqBody.authentication_result);
+            const { user_id } = authentication_result.payload;
+            const body = this.reqBody;
+            delete body.authentication_result;
+            const fields = ['bio', 'birthday', 'fullname', 'phone'];
+            const bodyFields = Object.keys(body);
+            console.log(body, bodyFields)
+
+            if (!bodyFields.length || !bodyFields.every((field) => fields.includes(field))) {
+                return $sendResponse.failed({}, this.response, apiMessageKeys.INVALID_BODY, statusCodes.BAD_REQUEST);
+            }
+
+            if(bodyFields.find(field => field == 'birthday')) {
+                if (!validateBirthday(body['birthday'])) {
+                    return $sendResponse.failed({}, this.response, apiMessageKeys.INVALID_BIRTHDAY, statusCodes.BAD_REQUEST);
+                }    
+
+                body['birthday'] = new Date(body['birthday'])
+            }
+
+            if (bodyFields.find((field) => field == 'bio')) {
+                if (body['bio'].length > 500) {
+                    return $sendResponse.failed({}, this.response, apiMessageKeys.INVALID_BRAND_BIO_SIZE, statusCodes.BAD_REQUEST);
+                }
+
+                if (!body['bio']) {
+                    body['bio'] = '';
+                }
+            }
+
+            if (bodyFields.find((field) => field == 'phone')) {
+                if (!validatePhoneNumber(body['phone'])) {
+                    return $sendResponse.failed({}, this.response, apiMessageKeys.INVALID_PHONE, statusCodes.BAD_REQUEST);
+                }
+
+                // TODO: Send SMS verification code
+            }
+
+            if (bodyFields.find((field) => field == 'fullname')) {
+                if (!validateFullName(body['fullname'])) {
+                    return $sendResponse.failed({}, this.response, apiMessageKeys.INVALID_FULLNAME, statusCodes.BAD_REQUEST);
+                }
+            }
+
+            await this.database.userDetails.update({
+                where: { user_id },
+                data: {
+                    bio: body['bio'], birthday: body['birthday'], phone: body['phone']
+                }
+            });
+
+            await this.database.users.update({
+                where: { id: user_id },
+                data: { fullname: body['fullname'] }
+            });
+
+            return $sendResponse.success({}, this.response);
+
+        } catch (error: any) {
+            $logged(`Edit user progress failed:\n${error}`, false, { file: __filename.split('/src')[1] });
+
+            return $sendResponse.failed(
+                {},
+                this.response,
+                apiMessageKeys.SOMETHING_WENT_WRONG,
+                statusCodes.INTERNAL_SERVER_ERROR
+            );
         }
     }
 }
