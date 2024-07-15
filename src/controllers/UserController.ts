@@ -784,7 +784,6 @@ class UserController extends Controller {
             delete body.authentication_result;
             const fields = ['bio', 'birthday', 'fullname', 'phone'];
             const bodyFields = Object.keys(body);
-            console.log(body, bodyFields)
 
             if (!bodyFields.length || !bodyFields.every((field) => fields.includes(field))) {
                 return $sendResponse.failed({}, this.response, apiMessageKeys.INVALID_BODY, statusCodes.BAD_REQUEST);

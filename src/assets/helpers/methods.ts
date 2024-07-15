@@ -3,6 +3,8 @@ import createError from 'http-errors';
 import dotenv from 'dotenv';
 import apiMessageKeys from '../constants/apiMessageKeys';
 import { Request, Response, NextFunction } from 'express';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import path from 'path';
 
 dotenv.config();
 let responseDelay: number = Number(process.env.RESPONSE_DELAY || 0);
@@ -73,3 +75,13 @@ export const $callToAction = (controller: any) => {
         }
     };
 };
+
+export const $writeToFileSafe = (data: string, filePath: string) => {
+    const dir = path.dirname(filePath);
+
+    if(existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
+    }
+
+    writeFileSync(filePath, data, 'utf8');
+}

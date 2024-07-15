@@ -1,3 +1,4 @@
+import e from "express";
 import moment from "moment";
 
 export function validateUrl(URL = '') {
@@ -36,15 +37,18 @@ export function validateBirthday(input = '') {
 
         if (year - inputYear < ageLimit) {
             return false;
-        } else if(month < inputMonth) {
-            return false;
-        } else if(day < inputDay) {
-            return false;
+        } else if(year - inputYear == ageLimit) {
+            if(month < inputMonth) {
+                return false;
+            } else if(month == inputMonth) {
+                return day >= inputDay;
+            } else {
+                return true;
+            }
         } else {
             return true;
         }
-    }
-    return false
+    } else { return false }
 }
 
 export function validRequiredFields(requiredFields: string[], payload: any){

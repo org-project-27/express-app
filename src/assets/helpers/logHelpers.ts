@@ -1,15 +1,16 @@
 import { ASCII_logo, currentLogFilePath, logsBasePath } from "#assets/constants/general";
 import moment from "moment/moment";
 import { isResponseSuccessful, readFromFile, writeToFile } from "#helpers/generalHelpers";
-import { PathLike } from "node:fs";
+import { PathLike, existsSync, writeFile } from "node:fs";
 import { sendLogToTelegramBot } from "#helpers/TelegramBot";
 import dotenv from "dotenv";
+import { $writeToFileSafe } from "./methods";
 dotenv.config();
 
 export const initLogs = () => {
     let beforeLogs = readFromFile(currentLogFilePath) || '-';
-    writeToFile(beforeLogs, `${logsBasePath}/logs-${moment().format('DD.MM.YYYY:HH:mm:ss')}.logs.txt`);
-    writeToFile(ASCII_logo, currentLogFilePath);
+    $writeToFileSafe(beforeLogs, `${logsBasePath}/logs-${moment().format('DD.MM.YYYY-HH-mm-ss')}.logs.log`);
+    $writeToFileSafe(ASCII_logo, currentLogFilePath);
 }
 
 
