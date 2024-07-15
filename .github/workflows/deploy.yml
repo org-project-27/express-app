@@ -36,6 +36,7 @@ jobs:
             git checkout master
             git pull
             npm install
+            npm run build
             npm run db:migrate
             npm run db:seed
             pm2 restart express-app
