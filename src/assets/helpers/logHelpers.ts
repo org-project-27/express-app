@@ -9,7 +9,7 @@ dotenv.config();
 
 export const initLogs = () => {
     let beforeLogs = readFromFile(currentLogFilePath) || '-';
-    $writeToFileSafe(beforeLogs, `${logsBasePath}/logs-${moment().format('DD.MM.YYYY-HH-mm-ss')}.logs.txt`); // Windows doesn't support ':' in file name
+    $writeToFileSafe(beforeLogs, `${logsBasePath}/logs-${moment().format('DD.MM.YYYY-HH-mm-ss')}.logs.log`);
     $writeToFileSafe(ASCII_logo, currentLogFilePath);
 }
 
