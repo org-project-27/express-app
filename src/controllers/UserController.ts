@@ -945,6 +945,15 @@ class UserController extends Controller {
                 );
             }
 
+            if (payload.old_password === payload.new_password) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.PASSWORDS_ARE_SAME,
+                    statusCodes.CONFLICT
+                );
+            }
+
             if (validatePasswordStrength(payload.new_password) < 2) {
                 return $sendResponse.failed(
                     {},
