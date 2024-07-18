@@ -1,7 +1,8 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 const router = express.Router();
 import $authenticateToken from '~/middlewares/authenticateToken';
-import UploadController, { uploader } from '#controllers/UploadController';
+import BaseUploadController from '~/controllers/BaseUploadController';
+import { $uploader } from '~/assets/helpers/methods';
 
-router.use('/', $authenticateToken, uploader, UploadController);
+router.use('/', $authenticateToken, $uploader(), BaseUploadController);
 export default router;
