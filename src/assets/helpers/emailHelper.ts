@@ -112,7 +112,7 @@ export async function getEmailTemplate(template_name: string, values: any = {}, 
     values['logo_url'] = `${appDomain.toLowerCase()}/logo.png`
     let templateContent: any = '<strong> Null content </strong>';
     try {
-        const filePath = path.join(__dirname, `../../views/email_templates/${lang || default_email_lang}/${template_name}.html`);
+        const filePath = path.join(__dirname, `../../../views/email_templates/${lang || default_email_lang}/${template_name}.html`);
         templateContent = await fs.readFile(filePath, 'utf8');
     } catch (error) {
         console.error('Error reading the HTML file', error);
