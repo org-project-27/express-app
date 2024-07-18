@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 const router = express.Router();
 import $authenticateToken from '~/middlewares/authenticateToken';
 import BaseUploadController from '~/controllers/BaseUploadController';

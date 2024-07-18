@@ -1,13 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Controller } from '#types/controller';
 import { $logged } from '~/assets/helpers/logHelpers';
-import { PrismaClient } from '@prisma/client';
 import { Request, Response, NextFunction } from 'express';
 import { $callToAction, $sendResponse } from '#helpers/methods';
 import apiMessageKeys from '~/assets/constants/apiMessageKeys';
-import multer from 'multer';
 import statusCodes from '#assets/constants/statusCodes';
-import { validRequiredFields } from '~/assets/helpers/inputValidation';
 
 class BaseUploadController extends Controller {
     constructor(request: Request, response: Response) {

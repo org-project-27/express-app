@@ -9,10 +9,8 @@ import bcrypt from "bcrypt";
 import statusCodes from "#assets/constants/statusCodes";
 import TokenSession from "#controllers/TokenSessionController";
 import {$sendEmail} from "#helpers/emailHelper";
-import {JwtPayload} from "jsonwebtoken";
 import {available_email_langs} from "#assets/constants/language";
 import moment from "moment";
-import { where } from "sequelize";
 
 class UserController extends Controller {
     constructor(request: Request, response: Response) {
