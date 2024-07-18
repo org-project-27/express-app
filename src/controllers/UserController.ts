@@ -28,6 +28,7 @@ class UserController extends Controller {
         this.actions['POST']['/token'] = this.refreshToken;
         this.actions['POST']['/forgot_password'] = this.forgotPassword;
         this.actions['POST']['/reset_password'] = this.resetPassword;
+        this.actions['POST']['/profile_photo'] = this.uploadProfilePhoto;
 
         this.actions['PATCH']['/preferred_lang'] = this.setPreferredLang;
         this.actions['PATCH']['/edit'] = this.editUser;
@@ -840,6 +841,65 @@ class UserController extends Controller {
 
             return $sendResponse.failed(
                 {},
+                this.response,
+                apiMessageKeys.SOMETHING_WENT_WRONG,
+                statusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public uploadProfilePhoto = async () => {
+        try {
+            const object_id = this.reqBody.object_id;
+            const { user_id } = this.reqBody.authentication_result.payload;
+
+            const oldObject = await this.database.objects.findFirst({
+                where: { object_for: 'profile_photo', user_id, id: { not: object_id } }
+            });
+
+            const newObject = await this.database.objects.findUnique({
+                where: { id: object_id }
+            });
+
+            if (!newObject) {
+                $logged(`Object not found: ${object_id}`, false, { from: 'user/updateProfilePhoto', object_id });
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.SOMETHING_WENT_WRONG,
+                    statusCodes.INTERNAL_SERVER_ERROR
+                );
+            }
+
+            if(oldObject) {
+                const oldPath = oldObject.path;
+                this.cdn.deleteObject(oldPath);
+                await this.database.objects.delete({
+                    where: { id: oldObject.id }
+                });
+            }
+
+            await this.database.userDetails.update({
+                where: { user_id },
+                data: { profile_photo_id: object_id }
+            })
+
+            $sendResponse.success(
+                {
+                    filename: newObject.name,
+                    object_id
+                },
+                this.response
+            );
+        } catch (error) {
+            $logged(
+                `Object updating progress failed\n${error}`,
+                false,
+                { file: __filename.split('/src')[1], payload: this.reqBody },
+                this.request.ip
+            );
+            return $sendResponse.failed(
+                { error },
                 this.response,
                 apiMessageKeys.SOMETHING_WENT_WRONG,
                 statusCodes.INTERNAL_SERVER_ERROR
