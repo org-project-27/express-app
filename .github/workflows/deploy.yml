@@ -36,6 +36,7 @@ jobs:
             git checkout master
             git pull
             npm install
+            rm -rf dist
             npm run build
             npm run db:migrate
             npm run db:seed
