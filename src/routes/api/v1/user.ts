@@ -9,6 +9,7 @@ router.get('/auth', $authenticateToken, UserController);
 router.get('/logout', $authenticateToken, UserController);
 router.patch('/preferred_lang', $authenticateToken, UserController);
 router.patch('/edit', $authenticateToken, UserController);
+router.patch('/change_password', $authenticateToken, UserController);
 router.post('/profile_photo', $authenticateToken, $uploader('profile_photo'), UserController);
 router.use('/', UserController);
 

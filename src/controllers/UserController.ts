@@ -30,6 +30,7 @@ class UserController extends Controller {
 
         this.actions['PATCH']['/preferred_lang'] = this.setPreferredLang;
         this.actions['PATCH']['/edit'] = this.editUser;
+        this.actions['PATCH']['/change_password'] = this.changePassword;
     }
 
     public auth = async () => {
@@ -797,12 +798,12 @@ class UserController extends Controller {
             }
 
             if (bodyFields.find((field) => field == 'bio')) {
-                if (body['bio'].length > 500) {
-                    return $sendResponse.failed({}, this.response, apiMessageKeys.INVALID_BRAND_BIO_SIZE, statusCodes.BAD_REQUEST);
-                }
-
                 if (!body['bio']) {
                     body['bio'] = '';
+                }
+
+                if (body['bio'].length > 500) {
+                    return $sendResponse.failed({}, this.response, apiMessageKeys.INVALID_BRAND_BIO_SIZE, statusCodes.BAD_REQUEST);
                 }
             }
 
@@ -902,6 +903,114 @@ class UserController extends Controller {
                 apiMessageKeys.SOMETHING_WENT_WRONG,
                 statusCodes.INTERNAL_SERVER_ERROR
             );
+        }
+    }
+
+    public changePassword = async () => {
+        try {
+            const authentication_result = JSON.parse(this.reqBody.authentication_result);
+            const { user_id } = authentication_result.payload;
+            const required_fields = validRequiredFields(['old_password', 'new_password'], this.reqBody);
+            if (required_fields.length) {
+                return $sendResponse.failed(
+                    {required_fields},
+                    this.response,
+                    apiMessageKeys.SOMETHING_WENT_WRONG,
+                    statusCodes.BAD_REQUEST
+                )
+            }
+
+            const existUser = await this.database.users.findFirst({
+                where: { id: user_id }, 
+                include: { UserDetails: true }
+            });
+
+            if(!existUser) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.USER_NOT_FOUND,
+                    statusCodes.NOT_FOUND
+                );
+            }
+
+            const payload = this.reqBody;
+            const bcryptResult = await bcrypt.compare(payload.old_password, existUser.password);
+            if (!bcryptResult) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.OLD_PASSWORD_INCORRECT,
+                    statusCodes.UNAUTHORIZED
+                );
+            }
+
+            if (validatePasswordStrength(payload.new_password) < 2) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.INVALID_PASSWORD,
+                    statusCodes.BAD_REQUEST
+                );
+            }
+
+            const hash_password = await bcrypt.hash(
+                payload.new_password,
+                Number(process.env.HASH_LIMIT) || 10
+            );
+
+            await this.database.users
+                .update({
+                    where: { id: user_id },
+                    data: { password: hash_password }
+                })
+                .then(async () => {
+                    $logged(
+                        `🔐 Password changed for -> email: ${existUser.email}`,
+                        true,
+                        { file: __filename.split('/src')[1], user_id: existUser.id },
+                        this.request.ip,
+                        true
+                    );
+                    await $sendEmail(existUser.email, existUser.UserDetails?.preferred_lang!)[
+                        '@noreply'
+                    ].passwordUpdated({
+                        full_name: existUser.fullname,
+                        update_date: moment().format('YYYY-MM-DD HH:mm:ss'),
+                        browser: this.request.useragent?.browser || '--',
+                        os: this.request.useragent?.os || '--',
+                        platform: this.request.useragent?.platform || '--'
+                    });
+                    return $sendResponse.success(
+                        {},
+                        this.response,
+                        apiMessageKeys.PASSWORD_SUCCESSFULLY_CHANGED,
+                        statusCodes.OK
+                    );
+                })
+                .catch((error: any) => {
+                    $logged(
+                        `Password changing failed for.\n${error}`,
+                        false,
+                        { file: __filename.split('/src')[1], user_id: existUser.id },
+                        this.request.ip,
+                        true
+                    );
+                    throw error;
+                })
+
+        } catch (error: any) {
+            $logged(
+                `Change password progress failed:\n${error}`,
+                false,
+                {file: __filename.split('/src')[1]}
+            );
+            return $sendResponse.failed(
+                {},
+                this.response,
+                apiMessageKeys.SOMETHING_WENT_WRONG,
+                statusCodes.INTERNAL_SERVER_ERROR
+            )
         }
     }
 }
