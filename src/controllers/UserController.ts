@@ -27,10 +27,12 @@ class UserController extends Controller {
         this.actions['POST']['/forgot_password'] = this.forgotPassword;
         this.actions['POST']['/reset_password'] = this.resetPassword;
         this.actions['POST']['/profile_photo'] = this.uploadProfilePhoto;
-
+        
         this.actions['PATCH']['/preferred_lang'] = this.setPreferredLang;
         this.actions['PATCH']['/edit'] = this.editUser;
         this.actions['PATCH']['/change_password'] = this.changePassword;
+
+        this.actions['DELETE']['/profile_photo'] = this.deleteProfilePhoto;
     }
 
     public auth = async () => {
@@ -850,6 +852,16 @@ class UserController extends Controller {
     public uploadProfilePhoto = async () => {
         try {
             const object_id = this.reqBody.object_id;
+
+            if(!object_id) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.OBJECT_NOT_FOUND,
+                    statusCodes.BAD_REQUEST
+                );
+            }
+
             const { user_id } = this.reqBody.authentication_result.payload;
 
             const oldObject = await this.database.objects.findFirst({
@@ -893,6 +905,62 @@ class UserController extends Controller {
         } catch (error) {
             $logged(
                 `Object updating progress failed\n${error}`,
+                false,
+                { file: __filename.split('/src')[1], payload: this.reqBody },
+                this.request.ip
+            );
+            return $sendResponse.failed(
+                { error },
+                this.response,
+                apiMessageKeys.SOMETHING_WENT_WRONG,
+                statusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    public deleteProfilePhoto = async () => {
+        try {
+            const authentication_result = JSON.parse(this.reqBody.authentication_result);
+            const { user_id } = authentication_result.payload;
+            
+            const details = await this.database.userDetails.findFirst({
+                where: { user_id },
+                select: { profile_photo_id: true }
+            });
+
+            if(!details) {
+                return $sendResponse.failed(
+                    {},
+                    this.response,
+                    apiMessageKeys.USER_NOT_FOUND,
+                    statusCodes.BAD_REQUEST
+                );
+            }
+
+            if(details.profile_photo_id) {
+                const object = await this.database.objects.findUnique({
+                    where: { id: details.profile_photo_id }
+                });
+
+                if(object) {
+                    this.cdn.deleteObject(object.path);
+                    await this.database.objects.delete({
+                        where: { id: object.id }
+                    });
+                }
+
+                await this.database.userDetails.update({
+                    where: { user_id },
+                    data: { profile_photo_id: null }
+                });
+            }
+
+            return $sendResponse.success({}, this.response);
+
+            
+        } catch (error) {
+            $logged(
+                `Object deleting progress failed\n${error}`,
                 false,
                 { file: __filename.split('/src')[1], payload: this.reqBody },
                 this.request.ip
