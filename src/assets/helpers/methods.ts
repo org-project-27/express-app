@@ -136,7 +136,7 @@ export const $uploader = (objectFor?: string) => {
                 request.ip
             );
             return $sendResponse.failed(
-                { error },
+                {},
                 response,
                 apiMessageKeys.SOMETHING_WENT_WRONG,
                 statusCodes.INTERNAL_SERVER_ERROR

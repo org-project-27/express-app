@@ -11,6 +11,7 @@ router.patch('/preferred_lang', $authenticateToken, UserController);
 router.patch('/edit', $authenticateToken, UserController);
 router.patch('/change_password', $authenticateToken, UserController);
 router.post('/profile_photo', $authenticateToken, $uploader('profile_photo'), UserController);
+router.delete('/profile_photo', $authenticateToken, UserController);
 router.use('/', UserController);
 
 export default router;
